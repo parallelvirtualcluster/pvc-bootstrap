@@ -1,0 +1,7 @@
+---
+# clusters.yml
+# This file defines a list of Clusters that pvcbootstrapd should be aware of.
+
+clusters:
+  - cluster1
+  - cluster2

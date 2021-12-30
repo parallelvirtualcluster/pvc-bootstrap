@@ -1,0 +1,33 @@
+---
+pvc:
+  debug: true
+  deploy_username: DEPLOY_USERNAME
+  database:
+    path: ROOT_DIRECTORY/pvcbootstrapd.sql
+  api:
+    address: BOOTSTRAP_ADDRESS
+    port: 9999
+  queue:
+    address: 127.0.0.1
+    port: 6379
+    path: "/0"
+  dhcp:
+    address: BOOTSTRAP_ADDRESS
+    gateway: BOOTSTRAP_ADDRESS
+    domain: pvcbootstrap.local
+    lease_start: BOOTSTRAP_DHCPSTART
+    lease_end: BOOTSTRAP_DHCPEND
+    lease_time: 1h
+  tftp:
+    root_path: "ROOT_DIRECTORY/tftp"
+    host_path: "ROOT_DIRECTORY/tftp/host"
+  ansible:
+    path: "ROOT_DIRECTORY/repo"
+    keyfile: "ROOT_DIRECTORY/id_ed25519"
+    remote: "GIT_REMOTE"
+    branch: "GIT_BRANCH"
+    clusters_file: "clusters.yml"
+    cspec_files:
+        base: "base.yml"
+        pvc: "pvc.yml"
+        bootstrap: "bootstrap.yml"

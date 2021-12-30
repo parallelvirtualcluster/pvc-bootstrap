@@ -1,0 +1,91 @@
+---
+pvc:
+  # Enable debug mode
+  debug: true
+
+  # Deploy username
+  deploy_username: deploy
+
+  # Database (SQLite) configuration
+  database:
+    # Path to the database file
+    path: /srv/tftp/pvcbootstrapd.sql
+
+  # Flask API configuration
+  api:
+    # Listen address
+    address: 10.199.199.254
+
+    # Listen port
+    port: 9999
+
+  # Redis Celery queue configuration
+  queue:
+    # Connect address
+    address: 127.0.0.1
+
+    # Connect port
+    port: 6379
+
+    # Redis path (almost always 0)
+    path: "/0"
+
+  # DNSMasq DHCP configuration
+  dhcp:
+    # Listen address
+    address: 10.199.199.254
+
+    # Default gateway address
+    gateway: 10.199.199.1
+
+    # Local domain
+    domain: pvcbootstrap.local
+
+    # DHCP lease range start
+    lease_start: 10.199.199.10
+
+    # DHCP lease range end
+    lease_end: 10.199.199.99
+
+    # DHCP lease time
+    lease_time: 1h
+
+  # DNSMasq TFTP configuration
+  tftp:
+    # Root TFTP path (contents of the "buildpxe.sh" output directory; generally read-only)
+    root_path: "/srv/tftp/pvc-installer"
+
+    # Per-host TFTP path (almost always "/host" under "root_path"; must be writable)
+    host_path: "/srv/tftp/pvc-installer/host"
+
+  # PVC Ansible repository configuration
+  # Note: If "path" does not exist, "remote" will be cloned to it via Git using SSH private key "keyfile".
+  # Note: The VCS will be refreshed regularly via the API in response to webhooks.
+  ansible:
+    # Path to the VCS repository
+    path: "/var/home/joshua/pvc"
+
+    # Path to the deploy key (if applicable) used to clone and pull the repository
+    keyfile: "/var/home/joshua/id_ed25519.joshua.key"
+
+    # Git remote URI for the repository
+    remote: "ssh://git@git.bonifacelabs.ca:2222/bonifacelabs/pvc.git"
+
+    # Git branch to use
+    branch: "master"
+
+    # Clusters configuration file
+    clusters_file: "clusters.yml"
+
+    # Filenames of the various group_vars components of a cluster
+    # Generally with pvc-ansible this will contain 2 files: "base.yml", and "pvc.yml"; refer to the
+    # pvc-ansible documentation and examples for details on these files.
+    # The third file, "bootstrap.yml", is used by pvcbootstrapd to map BMC MAC addresses to hosts and 
+    # to simplify hardware detection. It must be present or the cluster will not be bootstrapped.
+    # Adjust these entries to match the actual filenames of your clusters; the pvc-ansible defaults
+    # are provided here. All clusters using this pvcbootstrapd instance must share identical filenames
+    # here.
+    cspec_files:
+        base: "base.yml"
+        pvc: "pvc.yml"
+        bootstrap: "bootstrap.yml"

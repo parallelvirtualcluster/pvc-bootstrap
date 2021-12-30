@@ -1,0 +1,16 @@
+# Parallel Virtual Cluster Provisioner API provisioner worker unit file
+
+[Unit]
+Description = Parallel Virtual Cluster Bootstrap API worker
+After = network-online.target
+
+[Service]
+Type = simple
+WorkingDirectory = /usr/share/pvc
+Environment = PYTHONUNBUFFERED=true
+Environment = PVC_CONFIG_FILE=/etc/pvc/pvcbootstrapd.yaml
+ExecStart = /usr/share/pvc/pvcbootstrapd-worker.sh
+Restart = on-failure
+
+[Install]
+WantedBy = multi-user.target

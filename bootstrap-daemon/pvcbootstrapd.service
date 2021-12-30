@@ -1,0 +1,16 @@
+# Parallel Virtual Cluster Bootstrap API daemon unit file
+
+[Unit]
+Description = Parallel Virtual Cluster Bootstrap API daemon
+After = network-online.target
+
+[Service]
+Type = simple
+WorkingDirectory = /usr/share/pvc
+Environment = PYTHONUNBUFFERED=true
+Environment = PVC_CONFIG_FILE=/etc/pvc/pvcbootstrapd.yaml
+ExecStart = /usr/share/pvc/pvcbootstrapd.py
+Restart = on-failure
+
+[Install]
+WantedBy = multi-user.target

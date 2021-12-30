@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+pushd $( git rev-parse --show-toplevel ) &>/dev/null
+
+ex=0
+
+./format check
+if [[ $? -ne 0 ]]; then
+    ./format
+    echo "Black formatting change detected; review and recommit"
+    ex=1
+fi
+
+./lint
+if [[ $? -ne 0 ]]; then
+    echo "Linting error detected; correct and recommit"
+    ex=1
+fi
+
+echo
+popd &>/dev/null
+exit $ex

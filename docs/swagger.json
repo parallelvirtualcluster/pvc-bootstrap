@@ -1,0 +1,191 @@
+{
+    "definitions": {
+        "Message": {
+            "properties": {
+                "message": {
+                    "description": "A text message describing the result",
+                    "example": "The foo was successfully maxed",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "host": "localhost:9999",
+    "info": {
+        "title": "PVC Bootstrap API",
+        "version": "1.0"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Message"
+                        }
+                    }
+                },
+                "summary": "Return basic details of the API",
+                "tags": [
+                    "root"
+                ]
+            }
+        },
+        "/checkin": {
+            "get": {
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Message"
+                        }
+                    }
+                },
+                "summary": "Return checkin details of the API",
+                "tags": [
+                    "checkin"
+                ]
+            }
+        },
+        "/checkin/dnsmasq": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "parameters": [
+                    {
+                        "description": "An event checkin from an external bootstrap tool component.",
+                        "in": "body",
+                        "name": "dnsmasq_checkin_event",
+                        "schema": {
+                            "properties": {
+                                "action": {
+                                    "description": "The action of the event.",
+                                    "example": "add",
+                                    "type": "string"
+                                },
+                                "client_id": {
+                                    "description": "(add, old) The client ID from a DHCP request.",
+                                    "example": "01:ff:ff:ff:ab:cd:ef",
+                                    "type": "string"
+                                },
+                                "hostname": {
+                                    "description": "(add, old) The client hostname from a DHCP request.",
+                                    "example": "pvc-installer-live",
+                                    "type": "string"
+                                },
+                                "ipaddr": {
+                                    "description": "(add, old) The IP address from a DHCP request.",
+                                    "example": "10.199.199.10",
+                                    "type": "string"
+                                },
+                                "macaddr": {
+                                    "description": "(add, old) The MAC address from a DHCP request.",
+                                    "example": "ff:ff:ff:ab:cd:ef",
+                                    "type": "string"
+                                },
+                                "user_class": {
+                                    "description": "(add, old) The DHCP user-class option from a DHCP request.",
+                                    "example": "None",
+                                    "type": "string"
+                                },
+                                "vendor_class": {
+                                    "description": "(add, old) The DHCP vendor-class option from a DHCP request.",
+                                    "example": "CPQRIB3 (HP Proliant DL360 G6 iLO)",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "action"
+                            ],
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Message"
+                        }
+                    }
+                },
+                "summary": "Register a checkin from the DNSMasq subsystem",
+                "tags": [
+                    "checkin"
+                ]
+            }
+        },
+        "/checkin/host": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "parameters": [
+                    {
+                        "description": "An event checkin from an external bootstrap tool component.",
+                        "in": "body",
+                        "name": "host_checkin_event",
+                        "schema": {
+                            "properties": {
+                                "action": {
+                                    "description": "The action of the event.",
+                                    "example": "begin",
+                                    "type": "string"
+                                },
+                                "bmc_ipaddr": {
+                                    "description": "The IP addres of the system BMC interface.",
+                                    "example": "10.199.199.10",
+                                    "type": "string"
+                                },
+                                "bmc_macaddr": {
+                                    "description": "The MAC address of the system BMC interface.",
+                                    "example": "ff:ff:ff:01:23:45",
+                                    "type": "string"
+                                },
+                                "host_ipaddr": {
+                                    "description": "The IP address of the system provisioning interface.",
+                                    "example": "10.199.199.11",
+                                    "type": "string"
+                                },
+                                "host_macaddr": {
+                                    "description": "The MAC address of the system provisioning interface.",
+                                    "example": "ff:ff:ff:ab:cd:ef",
+                                    "type": "string"
+                                },
+                                "hostname": {
+                                    "description": "The system hostname.",
+                                    "example": "hv1.mydomain.tld",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "action"
+                            ],
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Message"
+                        }
+                    }
+                },
+                "summary": "Register a checkin from the Host subsystem",
+                "tags": [
+                    "checkin"
+                ]
+            }
+        }
+    },
+    "swagger": "2.0"
+}

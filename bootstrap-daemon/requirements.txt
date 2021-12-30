@@ -1,0 +1,11 @@
+ansible
+ansible_runner
+celery
+flask
+flask_restful
+gevent
+gitpython
+paramiko
+pyyaml
+redis
+requests
