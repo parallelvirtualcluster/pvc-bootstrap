@@ -176,3 +176,9 @@ target_deploy_user="deploy"
 # Installer checkin URI (provided by pvcbootstrapd)
 pvcbootstrapd_checkin_uri="http://10.255.255.1:9999/checkin/host"
 ```
+
+## Bootstrap Process
+
+This diagram outlines the various states the nodes and clusters will be in throughout the setup process along with the individual steps for reference.
+
+![PVC Bootstrap Process](/docs/images/pvcbootstrapd-process.png)
