@@ -225,6 +225,7 @@ def run_hook_script(config, targets, args):
         script = args.get("script", None)
         source = args.get("source", None)
         path = args.get("path", None)
+        arguments = args.get("arguments", [])
 
         logger.info(f"Running script on node {node_name}")
 
@@ -255,7 +256,12 @@ def run_hook_script(config, targets, args):
             elif source == "remote":
                 remote_path = path
 
-            stdin, stdout, stderr = c.exec_command(remote_path)
+            if len(arguments) > 0:
+                remote_command = f"{remote_path} {' '.join(arguments)}"
+            else:
+                remote_command = remote_path
+
+            stdin, stdout, stderr = c.exec_command(remote_command)
             logger.debug(stdout.readlines())
             logger.debug(stderr.readlines())
 
