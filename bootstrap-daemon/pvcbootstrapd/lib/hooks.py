@@ -192,6 +192,28 @@ def run_hook_network(config, targets, args):
         break
 
 
+def run_hook_copy(config, targets, args):
+    """
+    Copy a file from the local machine to the target(s)
+    """
+    for node in targets:
+        node_name = node.name
+        node_address = node.host_ipaddr
+
+        source = args.get("source", [])
+        destination = args.get("destination", [])
+        mode = args.get("mode", [])
+
+        logger.info(f"Copying file {source} to node {node_name}:{destination}")
+
+        with run_paramiko(config, node_address) as c:
+            for sfile, dfile, dmode in zip(source, destination, mode):
+                tc = c.open_sftp()
+                tc.put(sfile, dfile)
+                tc.chmod(dfile, dmode)
+                tc.close()
+
+
 def run_hook_script(config, targets, args):
     """
     Run a script on the targets
@@ -269,6 +291,7 @@ hook_functions = {
     "osd": run_hook_osd,
     "pool": run_hook_pool,
     "network": run_hook_network,
+    "copy": run_hook_copy,
     "script": run_hook_script,
     "webhook": run_hook_webhook,
 }
@@ -313,4 +336,10 @@ def run_hooks(config, cspec, cluster, nodes):
         sleep(5)
 
     # Restart nodes to complete setup
-    hook_functions['script'](config, cluster_nodes, {'script': '#!/usr/bin/env bash\necho bootstrapped | sudo tee /etc/pvc-install.hooks\nsudo reboot'})
+    hook_functions["script"](
+        config,
+        cluster_nodes,
+        {
+            "script": "#!/usr/bin/env bash\necho bootstrapped | sudo tee /etc/pvc-install.hooks\nsudo reboot"
+        },
+    )
