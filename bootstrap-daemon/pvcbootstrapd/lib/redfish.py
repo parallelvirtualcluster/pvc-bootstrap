@@ -730,6 +730,9 @@ def redfish_init(config, cspec, data):
     set_power_state(session, system_root, redfish_vendor, "off")
     set_indicator_state(session, system_root, redfish_vendor, "on")
 
+    logger.info("Waiting 60 seconds for system normalization")
+    sleep(60)
+
     # Get the system details
     logger.debug("Get the system details")
     system_detail = session.get(system_root)
@@ -789,9 +792,6 @@ def redfish_init(config, cspec, data):
         host_ipaddr,
     )
     logger.debug(node)
-
-    logger.info("Waiting 60 seconds for system normalization")
-    sleep(60)
 
     logger.info("Determining system disk...")
     storage_root = system_detail.get("Storage", {}).get("@odata.id")
