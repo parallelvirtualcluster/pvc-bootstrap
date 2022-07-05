@@ -86,7 +86,7 @@ class RedfishSession:
         login_response = None
 
         tries = 1
-        max_tries = 25
+        max_tries = 31
         while tries < max_tries:
             logger.info(f"Trying to log in to Redfish ({tries}/{max_tries - 1})...")
             try:
