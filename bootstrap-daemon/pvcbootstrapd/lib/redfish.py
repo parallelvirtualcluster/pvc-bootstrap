@@ -190,12 +190,22 @@ class RedfishSession:
         url = f"{self.host}{uri}"
         payload = json.dumps(data)
 
+        logger.debug(f"POST payload: {payload}")
+
         response = requests.post(url, data=payload, headers=self.headers, verify=False)
 
-        if response.status_code in [200, 201]:
-            return response.json()
+        if response.status_code in [200, 201, 204]:
+            try:
+                return response.json()
+            except json.decoder.JSONDecodeError as e:
+                return {"json_err": e}
         else:
-            rinfo = response.json()["error"]["@Message.ExtendedInfo"][0]
+            try:
+                rinfo = response.json()["error"]["@Message.ExtendedInfo"][0]
+            except json.decoder.JSONDecodeError:
+                logger.debug(response)
+                raise
+
             if rinfo.get("Message") is not None:
                 message = f"{rinfo['Message']} {rinfo['Resolution']}"
                 severity = rinfo["Severity"]
@@ -215,6 +225,8 @@ class RedfishSession:
     def put(self, uri, data):
         url = f"{self.host}{uri}"
         payload = json.dumps(data)
+
+        logger.debug(f"PUT payload: {payload}")
 
         response = requests.put(url, data=payload, headers=self.headers, verify=False)
 
@@ -241,6 +253,8 @@ class RedfishSession:
     def patch(self, uri, data):
         url = f"{self.host}{uri}"
         payload = json.dumps(data)
+
+        logger.debug(f"PATCH payload: {payload}")
 
         response = requests.patch(url, data=payload, headers=self.headers, verify=False)
 
@@ -586,11 +600,11 @@ def set_power_state(session, system_root, redfish_vendor, state):
     else:
         target_state = state
 
-    if target_state == current_state:
-        return False
+#    if target_state == current_state:
+#        return False
 
-    if state not in power_choices:
-        return False
+#    if state not in power_choices:
+#        return False
 
     session.post(power_root, {"ResetType": state})
 
@@ -676,7 +690,7 @@ def redfish_init(config, cspec, data):
 
     logger.debug(cluster)
 
-    db.update_node_state(config, cspec_cluster, cspec_hostname, "characterzing")
+    db.update_node_state(config, cspec_cluster, cspec_hostname, "characterizing")
     db.update_node_addresses(
         config,
         cspec_cluster,
@@ -698,6 +712,7 @@ def redfish_init(config, cspec, data):
 
     logger.info("Characterizing node...")
     # Get Refish bases
+    logger.debug("Getting redfish bases")
     redfish_base_root = "/redfish/v1"
     redfish_base_detail = session.get(redfish_base_root)
 
@@ -711,10 +726,12 @@ def redfish_init(config, cspec, data):
     system_root = systems_base_detail["Members"][0]["@odata.id"].rstrip("/")
 
     # Force off the system and turn on the indicator
+    logger.debug("Force off the system and turn on the indicator")
     set_power_state(session, system_root, redfish_vendor, "off")
     set_indicator_state(session, system_root, redfish_vendor, "on")
 
     # Get the system details
+    logger.debug("Get the system details")
     system_detail = session.get(system_root)
 
     system_sku = system_detail["SKU"].strip()
@@ -724,6 +741,7 @@ def redfish_init(config, cspec, data):
     system_health_state = system_detail["Status"]["Health"].strip()
 
     # Walk down the EthernetInterfaces construct to get the bootstrap interface MAC address
+    logger.debug("Walk down the EthernetInterfaces construct to get the bootstrap interface MAC address")
     try:
         ethernet_root = system_detail["EthernetInterfaces"]["@odata.id"].rstrip("/")
         ethernet_detail = session.get(ethernet_root)
@@ -734,6 +752,7 @@ def redfish_init(config, cspec, data):
         first_interface_detail = dict()
 
     # Try to get the MAC address directly from the interface detail (Redfish standard)
+    logger.debug("Try to get the MAC address directly from the interface detail (Redfish standard)")
     if first_interface_detail.get("MACAddress") is not None:
         bootstrap_mac_address = first_interface_detail["MACAddress"].strip().lower()
     # Try to get the MAC address from the HostCorrelation->HostMACAddress (HP DL360x G8)
@@ -770,6 +789,9 @@ def redfish_init(config, cspec, data):
         host_ipaddr,
     )
     logger.debug(node)
+
+    logger.info("Waiting 60 seconds for system normalization")
+    sleep(60)
 
     logger.info("Determining system disk...")
     storage_root = system_detail.get("Storage", {}).get("@odata.id")
