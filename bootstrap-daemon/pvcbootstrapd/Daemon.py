@@ -122,6 +122,7 @@ def read_config():
         o_dhcp = o_base["dhcp"]
         o_tftp = o_base["tftp"]
         o_ansible = o_base["ansible"]
+        o_notifications = o_base["notifications"]
     except KeyError as k:
         raise MalformedConfigurationError(f"Missing first-level category {k}")
 
@@ -201,6 +202,15 @@ def read_config():
         except Exception:
             raise MalformedConfigurationError(
                 f"Missing third-level key '{key}' under 'ansible/cspec_files'"
+            )
+
+    # Get the Notifications configuration
+    for key in ["enabled", "uri", "action", "icons", "body"]:
+        try:
+            config[f"notifications_{key}"] = o_notifications[key]
+        except Exception:
+            raise MalformedConfigurationError(
+                f"Missing second-level key '{key}' under 'notifications'"
             )
 
     return config

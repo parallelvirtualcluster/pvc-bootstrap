@@ -33,16 +33,20 @@ def send_webhook(config, status, message):
     Send an notification webhook
     """
 
-    if not config.get('notifications', None) or not config['notifications']['enabled']:
+    if not config['notifications_enabled']:
         return
 
-    logger.debug(f"Sending notification to {config['notifications']['uri']}")
+    logger.debug(f"Sending notification to {config['notifications_uri']}")
 
     # Get the body data
-    data = json.dumps(config['notifications']['body']).format(
-        icon=config['notifications']['icons'][status],
-        message=message
-    )
+    body = config['notifications_body']
+    formatted_body = dict()
+    for element, value in body.items():
+        formatted_body[element] = value.format(
+            icon=config['notifications_icons'][status],
+            message=message
+        )
+    data = json.dumps(formatted_body)
     headers = {"content-type": "application/json"}
 
     # Craft up a Requests endpoint set for this
@@ -54,8 +58,8 @@ def send_webhook(config, status, message):
         "delete": requests.delete,
         "options": requests.options,
     }
-    action = config['notifications']["action"]
+    action = config['notifications_action']
 
-    result = requests_actions[action](config['notifications']["uri"], headers=headers, data=data)
+    result = requests_actions[action](config['notifications_uri'], headers=headers, data=data)
 
     logger.debug(f"Result: {result}")
