@@ -39,7 +39,7 @@ pvc:
       begin: "🤞"       # A task is beginning
       success: "✅"     # A task succeeded
       failure: "❌"     # A task failed
-      completed: "👌"	# A task is completed
+      completed: "👌"   # A task is completed
     body:
       channel: "mychannel"
       username: "pvcbootstrapd"

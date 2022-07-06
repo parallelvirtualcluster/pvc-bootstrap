@@ -250,9 +250,6 @@ def entrypoint():
 
     notifications.send_webhook(config, "begin", "Starting up pvcbootstrapd")
 
-    cspec = git.load_cspec_yaml(config)
-    print(cspec)
-
     # Initialize the database
     db.init_database(config)
 

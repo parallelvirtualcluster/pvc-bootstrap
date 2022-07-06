@@ -104,7 +104,7 @@ pvc:
       begin: "🤞"       # A task is beginning
       success: "✅"     # A task succeeded
       failure: "❌"     # A task failed
-      completed: "👌"	# A task is completed
+      completed: "👌"   # A task is completed
     # The webhook body elements; this is specific to the webhook target, and is converted into raw
     # JSON before sending.
     # Two special variables are used: "{icon}" displays one of the above icons, and "{message}" displays
