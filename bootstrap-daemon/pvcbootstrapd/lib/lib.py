@@ -19,6 +19,7 @@
 #
 ###############################################################################
 
+import pvcbootstrapd.lib.notifications as notifications
 import pvcbootstrapd.lib.db as db
 import pvcbootstrapd.lib.git as git
 import pvcbootstrapd.lib.redfish as redfish
@@ -50,6 +51,7 @@ def dnsmasq_checkin(config, data):
         cspec = git.load_cspec_yaml(config)
         is_in_bootstrap_map = True if data["macaddr"] in cspec["bootstrap"] else False
         if is_in_bootstrap_map:
+            notifications.send_webhook(config, "begin", f"New host checkin from MAC '{data['macaddr']}' as host {cspec['bootstrap'][data['macaddr']]['node']['fqdn']}")
             if (
                 cspec["bootstrap"][data["macaddr"]]["bmc"].get("redfish", None)
                 is not None
@@ -90,16 +92,19 @@ def host_checkin(config, data):
     if data["action"] in ["install-start"]:
         # Node install has started
         logger.info(f"Registering install start for host {data['hostname']}")
+        notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Registering install start for host {data['hostname']}")
         host.installer_init(config, cspec, data)
 
     elif data["action"] in ["install-complete"]:
         # Node install has finished
         logger.info(f"Registering install complete for host {data['hostname']}")
+        notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Registering install complete for host {data['hostname']}")
         host.installer_complete(config, cspec, data)
 
     elif data["action"] in ["system-boot_initial"]:
         # Node has booted for the first time and can begin Ansible runs once all nodes up
         logger.info(f"Registering first boot for host {data['hostname']}")
+        notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Registering first boot for host {data['hostname']}")
         target_state = "booted-initial"
 
         host.set_boot_state(config, cspec, data, target_state)
@@ -118,6 +123,7 @@ def host_checkin(config, data):
     elif data["action"] in ["system-boot_configured"]:
         # Node has been booted after Ansible run and can begin hook runs
         logger.info(f"Registering post-Ansible boot for host {data['hostname']}")
+        notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Registering post-Ansible boot for host {data['hostname']}")
         target_state = "booted-configured"
 
         host.set_boot_state(config, cspec, data, target_state)
@@ -136,6 +142,7 @@ def host_checkin(config, data):
     elif data["action"] in ["system-boot_completed"]:
         # Node has been fully configured and can be shut down for the final time
         logger.info(f"Registering post-hooks boot for host {data['hostname']}")
+        notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Registering post-hooks boot for host {data['hostname']}")
         target_state = "booted-completed"
 
         host.set_boot_state(config, cspec, data, target_state)
@@ -148,4 +155,5 @@ def host_checkin(config, data):
         if len(ready_nodes) >= len(all_nodes):
             cluster = db.update_cluster_state(config, cspec_cluster, "completed")
 
+            notifications.send_webhook(config, "completed", f"Cluster {cspec_cluster} deployment completed")
             # Hosts will now power down ready for real activation in production

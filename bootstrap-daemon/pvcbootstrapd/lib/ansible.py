@@ -19,6 +19,7 @@
 #
 ###############################################################################
 
+import pvcbootstrapd.lib.notifications as notifications
 import pvcbootstrapd.lib.git as git
 
 import ansible_runner
@@ -53,6 +54,9 @@ def run_bootstrap(config, cspec, cluster, nodes):
     logger.info("Waiting 60s before starting Ansible bootstrap.")
     sleep(60)
 
+    logger.info("Starting Ansible bootstrap of cluster {cluster.name}")
+    notifications.send_webhook(config, "begin", f"Starting Ansible bootstrap of cluster {cluster.name}")
+
     # Run the Ansible playbooks
     with tempfile.TemporaryDirectory(prefix="pvc-ansible-bootstrap_") as pdir:
         try:
@@ -74,5 +78,9 @@ def run_bootstrap(config, cspec, cluster, nodes):
             if r.rc == 0:
                 git.commit_repository(config)
                 git.push_repository(config)
+                notifications.send_webhook(config, "success", f"Completed Ansible bootstrap of cluster {cluster.name}")
+            else:
+                notifications.send_webhook(config, "failure", f"Failed Ansible bootstrap of cluster {cluster.name}; check pvcbootstrapd logs")
         except Exception as e:
             logger.warning(f"Error: {e}")
+            notifications.send_webhook(config, "failure", f"Failed Ansible bootstrap of cluster {cluster.name} with error {e}; check pvcbootstrapd logs")

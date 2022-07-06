@@ -23,6 +23,8 @@ import os.path
 import git
 import yaml
 
+import pvcbootstrapd.lib.notifications as notifications
+
 from celery.utils.log import get_task_logger
 
 
@@ -39,6 +41,7 @@ def init_repository(config):
             print(
                 f"First run: cloning repository {config['ansible_remote']} branch {config['ansible_branch']} to {config['ansible_path']}"
             )
+            notifications.send_webhook(config, "begin", f"First run: cloning repository {config['ansible_remote']} branch {config['ansible_branch']} to {config['ansible_path']}")
             git.Repo.clone_from(
                 config["ansible_remote"],
                 config["ansible_path"],
@@ -49,6 +52,7 @@ def init_repository(config):
         g = git.cmd.Git(f"{config['ansible_path']}")
         g.checkout(config["ansible_branch"])
         g.submodule("update", "--init", env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
+        notifications.send_webhook(config, "success", "First run: successfully initialized Git repository")
     except Exception as e:
         print(f"Error: {e}")
 

@@ -19,6 +19,7 @@
 #
 ###############################################################################
 
+import pvcbootstrapd.lib.notifications as notifications
 import pvcbootstrapd.lib.db as db
 
 import json
@@ -311,6 +312,8 @@ def run_hooks(config, cspec, cluster, nodes):
     logger.info("Waiting 300s before starting hook run.")
     sleep(300)
 
+    notifications.send_webhook(config, "begin", f"Running hook tasks for cluster {cluster.name}")
+
     cluster_hooks = cspec["hooks"][cluster.name]
 
     cluster_nodes = db.get_nodes_in_cluster(config, cluster.name)
@@ -334,9 +337,12 @@ def run_hooks(config, cspec, cluster, nodes):
 
         # Run the hook function
         try:
+            notifications.send_webhook(config, "begin", f"Cluster {cluster.name}: Running hook task '{hook_name}'")
             hook_functions[hook_type](config, target_nodes, hook_args)
+            notifications.send_webhook(config, "success", f"Cluster {cluster.name}: Completed hook task '{hook_name}'")
         except Exception as e:
             logger.warning(f"Error running hook: {e}")
+            notifications.send_webhook(config, "failure", f"Cluster {cluster.name}: Failed hook task '{hook_name}' with error {e}")
 
         # Wait 5s between hooks
         sleep(5)
@@ -349,3 +355,5 @@ def run_hooks(config, cspec, cluster, nodes):
             "script": "#!/usr/bin/env bash\necho bootstrapped | sudo tee /etc/pvc-install.hooks\nsudo reboot"
         },
     )
+
+    notifications.send_webhook(config, "success", f"Completed hook tasks for cluster {cluster.name}")

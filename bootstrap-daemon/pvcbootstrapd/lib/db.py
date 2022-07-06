@@ -23,6 +23,8 @@ import os
 import sqlite3
 import contextlib
 
+import pvcbootstrapd.lib.notifications as notifications
+
 from pvcbootstrapd.lib.dataclasses import Cluster, Node
 
 from celery.utils.log import get_task_logger
@@ -48,6 +50,7 @@ def init_database(config):
     db_path = config["database_path"]
     if not os.path.isfile(db_path):
         print("First run: initializing database.")
+        notifications.send_webhook(config, "begin", "First run: initializing database")
         # Initializing the database
         with dbconn(db_path) as cur:
             # Table listing all clusters
@@ -72,6 +75,8 @@ def init_database(config):
                             host_ipaddr TEXT NOT NULL,
                             CONSTRAINT cluster_col FOREIGN KEY (cluster) REFERENCES clusters(id) ON DELETE CASCADE )"""
             )
+
+        notifications.send_webhook(config, "success", "First run: successfully initialized database")
 
 
 #

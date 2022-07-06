@@ -31,6 +31,7 @@ import math
 from time import sleep
 from celery.utils.log import get_task_logger
 
+import pvcbootstrapd.lib.notifications as notifications
 import pvcbootstrapd.lib.installer as installer
 import pvcbootstrapd.lib.db as db
 
@@ -688,6 +689,8 @@ def redfish_init(config, cspec, data):
     cspec_cluster = cspec_node["node"]["cluster"]
     cspec_hostname = cspec_node["node"]["hostname"]
 
+    notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Beginning Redfish initialization of host {cspec_hostname}")
+
     cluster = db.get_cluster(config, name=cspec_cluster)
     if cluster is None:
         cluster = db.add_cluster(config, cspec, cspec_cluster, "provisioning")
@@ -852,6 +855,7 @@ def redfish_init(config, cspec, data):
 
     node = db.update_node_state(config, cspec_cluster, cspec_hostname, "pxe-booting")
 
+    notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Completed Redfish initialization of host {cspec_hostname}")
     logger.info("Waiting for completion of node and cluster installation...")
     # Wait for the system to install and be configured
     while node.state != "booted-completed":
@@ -862,6 +866,7 @@ def redfish_init(config, cspec, data):
         node = db.get_node(config, cspec_cluster, name=cspec_hostname)
 
     # Graceful shutdown of the machine
+    notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Powering off host {cspec_hostname}")
     set_power_state(session, system_root, redfish_vendor, "GracefulShutdown")
     system_power_state = "On"
     while system_power_state != "Off":
@@ -872,6 +877,7 @@ def redfish_init(config, cspec, data):
 
     # Turn off the indicator to indicate bootstrap has completed
     set_indicator_state(session, system_root, redfish_vendor, "off")
+    notifications.send_webhook(config, "completed", f"Cluster {cspec_cluster}: Powered off host {cspec_hostname}")
 
     # We must delete the session
     del session

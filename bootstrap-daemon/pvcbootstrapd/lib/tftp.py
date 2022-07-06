@@ -22,11 +22,14 @@
 import os.path
 import shutil
 
+import pvcbootstrapd.lib.notifications as notifications
+
 
 def build_tftp_repository(config):
     # Generate an installer config
     build_cmd = f"{config['ansible_path']}/pvc-installer/buildpxe.sh -o {config['tftp_root_path']} -u {config['deploy_username']}"
     print(f"Building TFTP contents via pvc-installer command: {build_cmd}")
+    notifications.send_webhook(config, "begin", f"Building TFTP contents via pvc-installer command: {build_cmd}")
     os.system(build_cmd)
 
 
@@ -36,6 +39,7 @@ def init_tftp(config):
     """
     if not os.path.exists(config["tftp_root_path"]):
         print("First run: building TFTP root and contents - this will take some time!")
+        notifications.send_webhook(config, "begin", "First run: building TFTP root and contents")
         os.makedirs(config["tftp_root_path"])
         os.makedirs(config["tftp_host_path"])
         shutil.copyfile(
@@ -43,3 +47,4 @@ def init_tftp(config):
         )
 
         build_tftp_repository(config)
+        notifications.send_webhook(config, "success", "First run: successfully initialized TFTP root and contents")
