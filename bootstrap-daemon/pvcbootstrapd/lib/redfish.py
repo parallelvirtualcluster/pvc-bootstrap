@@ -849,13 +849,15 @@ def redfish_init(config, cspec, data):
     logger.info("Setting temporary PXE boot...")
     set_boot_override(session, system_root, redfish_vendor, "Pxe")
 
+    notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Completed Redfish initialization of host {cspec_hostname}")
+
     # Turn on the system
     logger.info("Powering on node...")
     set_power_state(session, system_root, redfish_vendor, "on")
+    notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Powering on host {cspec_hostname}")
 
     node = db.update_node_state(config, cspec_cluster, cspec_hostname, "pxe-booting")
 
-    notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Completed Redfish initialization of host {cspec_hostname}")
     logger.info("Waiting for completion of node and cluster installation...")
     # Wait for the system to install and be configured
     while node.state != "booted-completed":

@@ -274,7 +274,7 @@ def entrypoint():
 
     def term(signum="", frame=""):
         print("Received TERM, exiting.")
-        notifications.send_webhook(config, "begin", "Received TERM, exiting pvcbootstrapd")
+        notifications.send_webhook(config, "completed", "Received TERM, exiting pvcbootstrapd")
         cleanup(0)
 
     signal.signal(signal.SIGTERM, term)
