@@ -261,6 +261,7 @@ def entrypoint():
 
     if "--init-only" in argv:
         print("Successfully initialized pvcbootstrapd; exiting.")
+        notifications.send_webhook(config, "success", "Successfully initialized pvcbootstrapd")
         exit(0)
 
     # Start DNSMasq
@@ -273,11 +274,14 @@ def entrypoint():
 
     def term(signum="", frame=""):
         print("Received TERM, exiting.")
+        notifications.send_webhook(config, "begin", "Received TERM, exiting pvcbootstrapd")
         cleanup(0)
 
     signal.signal(signal.SIGTERM, term)
     signal.signal(signal.SIGINT, term)
     signal.signal(signal.SIGQUIT, term)
+
+    notifications.send_webhook(config, "success", "Started up pvcbootstrapd")
 
     # Start Flask
     pvcbootstrapd.app.run(
