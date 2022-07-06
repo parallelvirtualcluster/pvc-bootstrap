@@ -517,7 +517,7 @@ def set_indicator_state(session, system_root, redfish_vendor, state):
     state_values_write = {
         "Dell": {
             "on": "Blinking",
-            "off": "Off",
+            "off": "Lit",
         },
         "default": {
             "on": "Lit",
@@ -526,6 +526,10 @@ def set_indicator_state(session, system_root, redfish_vendor, state):
     }
 
     state_values_read = {
+        "Dell": {
+            "on": "Blinking",
+            "off": "Lit",
+        },
         "default": {
             "on": "Lit",
             "off": "Off",
