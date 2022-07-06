@@ -203,6 +203,8 @@ def run_hook_copy(config, targets, args):
         node_address = node.host_ipaddr
 
         source = args.get("source", [])
+        if not match(r"^/", source):
+            source = f"{config['ansible_source']}/{source}"
         destination = args.get("destination", [])
         mode = args.get("mode", [])
 
