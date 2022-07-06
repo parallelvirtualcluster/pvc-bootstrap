@@ -157,7 +157,7 @@ def run_hook_network(config, targets, args):
             for dns_server in dns_servers:
                 pvc_cmd_string = f"{pvc_cmd_string} --dns-server {dns_server}"
 
-            is_ip4 = args["ip4"]
+            is_ip4 = args.get("ip4", False)
             if is_ip4:
                 ip4_network = args["ip4_network"]
                 pvc_cmd_string = f"{pvc_cmd_string} --ipnet {ip4_network}"
@@ -165,7 +165,7 @@ def run_hook_network(config, targets, args):
                 ip4_gateway = args["ip4_gateway"]
                 pvc_cmd_string = f"{pvc_cmd_string} --gateway {ip4_gateway}"
 
-                ip4_dhcp = args["ip4_dhcp"]
+                ip4_dhcp = args.get("ip4_dhcp", False)
                 if ip4_dhcp:
                     pvc_cmd_string = f"{pvc_cmd_string} --dhcp"
                     ip4_dhcp_start = args["ip4_dhcp_start"]
@@ -174,7 +174,7 @@ def run_hook_network(config, targets, args):
                 else:
                     pvc_cmd_string = f"{pvc_cmd_string} --no-dhcp"
 
-            is_ip6 = args["ip6"]
+            is_ip6 = args.get("ip6", False)
             if is_ip6:
                 ip6_network = args["ip6_network"]
                 pvc_cmd_string = f"{pvc_cmd_string} --ipnet6 {ip6_network}"
