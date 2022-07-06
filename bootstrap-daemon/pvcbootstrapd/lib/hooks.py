@@ -111,14 +111,15 @@ def run_hook_pool(config, targets, args):
         name = args["name"]
         pgs = args.get("pgs", "64")
         tier = args.get("tier", "default")  # Does nothing yet
+        replcfg = args.get("replcfg", "copies=3,mincopies=2")
 
         logger.info(
-            f"Creating storage pool on node {node_name} name {name} pgs {pgs} tier {tier}"
+            f"Creating storage pool on node {node_name} name {name} pgs {pgs} tier {tier} replcfg {replcfg}"
         )
 
         # Using a direct command on the target here is somewhat messy, but avoids many
         # complexities of determining a valid API listen address, etc.
-        pvc_cmd_string = f"pvc storage pool add {name} {pgs}"
+        pvc_cmd_string = f"pvc storage pool add {name} {pgs} --replcfg {replcfg}"
 
         with run_paramiko(config, node_address) as c:
             stdin, stdout, stderr = c.exec_command(pvc_cmd_string)
