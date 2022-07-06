@@ -227,6 +227,7 @@ def run_hook_script(config, targets, args):
         source = args.get("source", None)
         path = args.get("path", None)
         arguments = args.get("arguments", [])
+        use_sudo = args.get("use_sudo", False)
 
         logger.info(f"Running script on node {node_name}")
 
@@ -261,6 +262,9 @@ def run_hook_script(config, targets, args):
                 remote_command = f"{remote_path} {' '.join(arguments)}"
             else:
                 remote_command = remote_path
+
+            if use_sudo:
+                remote_command = f"sudo {remote_command}"
 
             stdin, stdout, stderr = c.exec_command(remote_command)
             logger.debug(stdout.readlines())
