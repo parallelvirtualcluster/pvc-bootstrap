@@ -86,7 +86,7 @@ class RedfishSession:
         login_response = None
 
         tries = 1
-        max_tries = 31
+        max_tries = 61
         while tries < max_tries:
             logger.info(f"Trying to log in to Redfish ({tries}/{max_tries - 1})...")
             try:
@@ -748,7 +748,9 @@ def redfish_init(config, cspec, data):
     try:
         ethernet_root = system_detail["EthernetInterfaces"]["@odata.id"].rstrip("/")
         ethernet_detail = session.get(ethernet_root)
-        first_interface_root = ethernet_detail["Members"][0]["@odata.id"].rstrip("/")
+        embedded_ethernet_detail_members = [e for e in ethernet_detail["Members"] if "Embedded" in e["@odata.id"]]
+        embedded_ethernet_detail_members.sort(key = lambda k: k["@odata.id"])
+        first_interface_root = embedded_ethernet_detail_members[0]["@odata.id"].rstrip("/")
         first_interface_detail = session.get(first_interface_root)
     # Something went wrong, so fall back
     except KeyError:
