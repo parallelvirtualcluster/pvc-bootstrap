@@ -31,3 +31,16 @@ pvc:
         base: "base.yml"
         pvc: "pvc.yml"
         bootstrap: "bootstrap.yml"
+  notifications:
+    enabled: false
+    uri: https://mattermost.domain.tld/hooks/asecretstring
+    action: post
+    icons:
+      begin: "🤞"       # A task is beginning
+      success: "✅"     # A task succeeded
+      failure: "❌"     # A task failed
+    body:
+      channel: "mychannel"
+      username: "pvcbootstrapd"
+      text: "@person {icon} {message}"
+

@@ -219,7 +219,7 @@ echo -n "Press <Enter> once completed to continue. "
 read
 echo
 
-echo "Edit configuration before proceeding?"
+echo "Edit configuration before proceeding? (Note: to enable notifications do so now)"
 echo -n "[y/N] > "
 read edit_flag
 case ${edit_flag} in

@@ -25,6 +25,7 @@ import signal
 
 from sys import argv
 
+import pvcbootstrapd.lib.notifications as notifications
 import pvcbootstrapd.lib.dnsmasq as dnsmasqd
 import pvcbootstrapd.lib.db as db
 import pvcbootstrapd.lib.git as git
@@ -236,6 +237,8 @@ def entrypoint():
     )
     print("|----------------------------------------------------------|")
     print("")
+
+    notifications.send_webhook(config, "begin", "Starting up pvcbootstrapd")
 
     # Initialize the database
     db.init_database(config)

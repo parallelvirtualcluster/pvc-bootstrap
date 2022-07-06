@@ -89,3 +89,27 @@ pvc:
         base: "base.yml"
         pvc: "pvc.yml"
         bootstrap: "bootstrap.yml"
+
+  # Notification webhook configs
+  # These enable sending notifications from the bootstrap to a JSON webhook, e.g. a chat system
+  # This feature is optional; if this block is missing or `enabled: false`, nothing here will be used.
+  notifications:
+    enabled: true
+    # The URI endpoint for notifications
+    uri: https://mattermost.domain.tld/hooks/asecretstring
+    # The action to use (usually "post")
+    action: post
+    # Icons to use for various status types; embedded in the message with `{icon}`
+    icons:
+      begin: "🤞"       # A task is beginning
+      success: "✅"     # A task succeeded
+      failure: "❌"     # A task failed
+    # The webhook body elements; this is specific to the webhook target, and is converted into raw
+    # JSON before sending.
+    # Two special variables are used: "{icon}" displays one of the above icons, and "{message}" displays
+    # the actual message coming from pvcbootstrapd.
+    body:
+      channel: "mychannel"
+      username: "pvcbootstrapd"
+      text: "@person {icon} {message}"
+
