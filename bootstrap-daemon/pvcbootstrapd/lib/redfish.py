@@ -720,9 +720,12 @@ def redfish_init(config, cspec, data):
     redfish_name = redfish_base_detail["Name"]
     redfish_version = redfish_base_detail["RedfishVersion"]
 
+    managers_base_root = redfish_base_detail["Managers"]["@odata.id"].rstrip("/")
+    managers_base_detail = session.get(managers_base_root)
+    manager_root = managers_base_detail["Members"][0]["@odata.id"].rstrip("/")
+
     systems_base_root = redfish_base_detail["Systems"]["@odata.id"].rstrip("/")
     systems_base_detail = session.get(systems_base_root)
-
     system_root = systems_base_detail["Members"][0]["@odata.id"].rstrip("/")
 
     # Force off the system and turn on the indicator
@@ -822,6 +825,18 @@ def redfish_init(config, cspec, data):
 
             payload = {"Attributes": {setting: value}}
             session.patch(f"{bios_root}/Settings", payload)
+
+    # Adjust any Manager settings
+    logger.info("Adjusting Manager settings...")
+    mgrattribute_root = f"{manager_root}/Attributes"
+    mgrattribute_detail = session.get(mgrattribute_root)
+    mgrattribute_attributes = list(mgrattribute_detail["Attributes"].keys())
+    for setting, value in cspec_node["bmc"].get("manager_settings", {}).items():
+        if setting not in bios_attributes:
+            continue
+
+        payload = {"Attributes": {setting: value}}
+        session.patch(mgrattribute_root, payload)
 
     # Set boot override to Pxe for the installer boot
     logger.info("Setting temporary PXE boot...")
