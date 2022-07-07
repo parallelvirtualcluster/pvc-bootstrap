@@ -214,7 +214,7 @@ def run_hook_copy(config, targets, args):
                     sfile = f"{config['ansible_path']}/{sfile}"
                 tc = c.open_sftp()
                 tc.put(sfile, dfile)
-                tc.chmod(dfile, dmode)
+                tc.chmod(dfile, int(dmode))
                 tc.close()
 
 
