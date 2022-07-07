@@ -688,8 +688,9 @@ def redfish_init(config, cspec, data):
 
     cspec_cluster = cspec_node["node"]["cluster"]
     cspec_hostname = cspec_node["node"]["hostname"]
+    cspec_fqdn = cspec_node["node"]["fqdn"]
 
-    notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Beginning Redfish initialization of host {cspec_hostname}")
+    notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Beginning Redfish initialization of host {cspec_fqdn}")
 
     cluster = db.get_cluster(config, name=cspec_cluster)
     if cluster is None:
@@ -849,12 +850,12 @@ def redfish_init(config, cspec, data):
     logger.info("Setting temporary PXE boot...")
     set_boot_override(session, system_root, redfish_vendor, "Pxe")
 
-    notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Completed Redfish initialization of host {cspec_hostname}")
+    notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Completed Redfish initialization of host {cspec_fqdn}")
 
     # Turn on the system
     logger.info("Powering on node...")
     set_power_state(session, system_root, redfish_vendor, "on")
-    notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Powering on host {cspec_hostname}")
+    notifications.send_webhook(config, "info", f"Cluster {cspec_cluster}: Powering on host {cspec_fqdn}")
 
     node = db.update_node_state(config, cspec_cluster, cspec_hostname, "pxe-booting")
 
@@ -868,7 +869,7 @@ def redfish_init(config, cspec, data):
         node = db.get_node(config, cspec_cluster, name=cspec_hostname)
 
     # Graceful shutdown of the machine
-    notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Powering off host {cspec_hostname}")
+    notifications.send_webhook(config, "info", f"Cluster {cspec_cluster}: Powering off host {cspec_fqdn}")
     set_power_state(session, system_root, redfish_vendor, "GracefulShutdown")
     system_power_state = "On"
     while system_power_state != "Off":
@@ -879,7 +880,6 @@ def redfish_init(config, cspec, data):
 
     # Turn off the indicator to indicate bootstrap has completed
     set_indicator_state(session, system_root, redfish_vendor, "off")
-    notifications.send_webhook(config, "completed", f"Cluster {cspec_cluster}: Powered off host {cspec_hostname}")
 
     # We must delete the session
     del session

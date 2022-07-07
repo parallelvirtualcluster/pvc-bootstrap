@@ -319,7 +319,7 @@ def run_hooks(config, cspec, cluster, nodes):
     logger.info("Waiting 300s before starting hook run.")
     sleep(300)
 
-    notifications.send_webhook(config, "begin", f"Running hook tasks for cluster {cluster.name}")
+    notifications.send_webhook(config, "begin", f"Cluster {cluster.name}: Running post-setup hook tasks")
 
     cluster_hooks = cspec["hooks"][cluster.name]
 
@@ -363,4 +363,4 @@ def run_hooks(config, cspec, cluster, nodes):
         },
     )
 
-    notifications.send_webhook(config, "success", f"Completed hook tasks for cluster {cluster.name}")
+    notifications.send_webhook(config, "success", f"Cluster {cluster.name}: Completed post-setup hook tasks")

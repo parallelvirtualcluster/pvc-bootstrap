@@ -52,7 +52,7 @@ def init_repository(config):
         g = git.cmd.Git(f"{config['ansible_path']}")
         g.checkout(config["ansible_branch"])
         g.submodule("update", "--init", env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
-        notifications.send_webhook(config, "success", "Successfully initialized Git repository")
+        notifications.send_webhook(config, "success", "Successfully updated Git repository")
     except Exception as e:
         print(f"Error: {e}")
 

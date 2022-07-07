@@ -101,6 +101,7 @@ pvc:
     action: post
     # Icons to use for various status types; embedded in the message with `{icon}`
     icons:
+      info: "❕"        # A note about an event
       begin: "🤞"       # A task is beginning
       success: "✅"     # A task succeeded
       failure: "❌"     # A task failed

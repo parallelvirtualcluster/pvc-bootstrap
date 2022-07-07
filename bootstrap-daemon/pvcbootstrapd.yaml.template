@@ -36,6 +36,7 @@ pvc:
     uri: https://mattermost.domain.tld/hooks/asecretstring
     action: post
     icons:
+      info: "❕"        # A note about an event
       begin: "🤞"       # A task is beginning
       success: "✅"     # A task succeeded
       failure: "❌"     # A task failed
