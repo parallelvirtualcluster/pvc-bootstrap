@@ -52,7 +52,6 @@ def init_repository(config):
         g = git.cmd.Git(f"{config['ansible_path']}")
         g.checkout(config["ansible_branch"])
         g.submodule("update", "--init", env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
-        notifications.send_webhook(config, "success", "Successfully updated Git repository")
     except Exception as e:
         print(f"Error: {e}")
 
@@ -67,8 +66,10 @@ def pull_repository(config):
         g = git.cmd.Git(f"{config['ansible_path']}")
         g.pull(rebase=True, env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
         g.submodule("update", "--init", env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
+        notifications.send_webhook(config, "success", "Successfully updated Git repository")
     except Exception as e:
         logger.warn(e)
+        notifications.send_webhook(config, "failure", "Failed to update Git repository")
 
 
 def commit_repository(config):
@@ -92,8 +93,10 @@ def commit_repository(config):
             author="PVC Bootstrap <git@pvcbootstrapd>",
             env=commit_env,
         )
+        notifications.send_webhook(config, "success", "Successfully committed to Git repository")
     except Exception as e:
         logger.warn(e)
+        notifications.send_webhook(config, "failure", "Failed to commit to Git repository")
 
 
 def push_repository(config):
@@ -109,8 +112,10 @@ def push_repository(config):
         g = git.Repo(f"{config['ansible_path']}")
         origin = g.remote(name="origin")
         origin.push(env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
+        notifications.send_webhook(config, "success", "Successfully pushed Git repository")
     except Exception as e:
         logger.warn(e)
+        notifications.send_webhook(config, "failure", "Failed to push Git repository")
 
 
 def load_cspec_yaml(config):
