@@ -93,13 +93,13 @@ def host_checkin(config, data):
     if data["action"] in ["install-start"]:
         # Node install has started
         logger.info(f"Registering install start for host {cspec_fqdn}")
-        notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: starting starting for host {cspec_fqdn}")
+        notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Base install starting for host {cspec_fqdn}")
         host.installer_init(config, cspec, data)
 
     elif data["action"] in ["install-complete"]:
         # Node install has finished
         logger.info(f"Registering install complete for host {cspec_fqdn}")
-        notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: install completed for host {cspec_fqdn}")
+        notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Base install completed for host {cspec_fqdn}")
         host.installer_complete(config, cspec, data)
 
     elif data["action"] in ["system-boot_initial"]:
