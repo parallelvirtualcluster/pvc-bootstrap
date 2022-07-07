@@ -106,6 +106,9 @@ pvc:
       success: "✅"     # A task succeeded
       failure: "❌"     # A task failed
       completed: "👌"   # A task is completed
+    # A trigger word (no whitespace) added to the end of the completed cluster message; this can be used
+    # for pings in various chat systems (e.g. Mattermost)
+    completed_triggerword: "#pvcbootstrapcompleted"
     # The webhook body elements; this is specific to the webhook target, and is converted into raw
     # JSON before sending.
     # Two special variables are used: "{icon}" displays one of the above icons, and "{message}" displays

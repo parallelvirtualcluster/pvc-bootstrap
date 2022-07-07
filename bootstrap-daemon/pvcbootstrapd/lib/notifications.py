@@ -38,6 +38,9 @@ def send_webhook(config, status, message):
 
     logger.debug(f"Sending notification to {config['notifications_uri']}")
 
+    if status == "completed" and config["notifications_completed_triggerword"]:
+        message = f"{message} {config['notifications_completed_triggerword']}"
+
     # Get the body data
     body = config['notifications_body']
     formatted_body = dict()

@@ -35,6 +35,7 @@ pvc:
     enabled: false
     uri: https://mattermost.domain.tld/hooks/asecretstring
     action: post
+    completed_triggerword: "#pvcbootstrapcompleted"
     icons:
       info: "❕"        # A note about an event
       begin: "🤞"       # A task is beginning

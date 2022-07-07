@@ -205,7 +205,7 @@ def read_config():
             )
 
     # Get the Notifications configuration
-    for key in ["enabled", "uri", "action", "icons", "body"]:
+    for key in ["enabled", "uri", "action", "icons", "body", "completed_triggerword"]:
         try:
             config[f"notifications_{key}"] = o_notifications[key]
         except Exception:
