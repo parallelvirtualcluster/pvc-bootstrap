@@ -620,18 +620,42 @@ def set_boot_override(session, system_root, redfish_vendor, target):
     """
     Set the system boot override to the desired target
     """
-    try:
-        system_detail = session.get(system_root)
-        boot_targets = system_detail["Boot"]["BootSourceOverrideSupported"]
-    except KeyError:
-        return False
+    print(redfish_vendor)
+    system_details = session.get(system_root)
 
-    if target not in boot_targets:
-        return False
+    def set_boot_override_dell():
+        # BootSourceOverrideEnabled': 'Disabled', 'BootSourceOverrideMode': 'UEFI', 'BootSourceOverrideTarget': 'None', 'UefiTargetBootSourceOverride': None,
+        try:
+            boot_targets = system_detail["Boot"]["BootSourceOverrideTarget@Redfish.AllowableValues"]
+        except KeyError:
+            logger.warn(f"Failed to set boot override, no BootSourceOverrideSupported key at {system_detail}")
+            return False
 
-    session.patch(system_root, {"Boot": {"BootSourceOverrideTarget": target}})
+        if target not in boot_targets:
+            logger.warn(f"Failed to set boot override, key {target} not in {boot_targets}")
+            return False
 
-    return True
+        session.patch(system_root, {"Boot": {"BootSourceOverrideEnabled": "Enabled", "BootSourceOverrideMode": "UEFI", "UefiTargetBootSourceOverride": target}})
+        return True
+
+    def set_boot_override_generic():
+        try:
+            boot_targets = system_detail["Boot"]["BootSourceOverrideSupported"]
+        except KeyError:
+            logger.warn(f"Failed to set boot override, no BootSourceOverrideSupported key at {system_detail}")
+            return False
+
+        if target not in boot_targets:
+            logger.warn(f"Failed to set boot override, key {target} not in {boot_targets}")
+            return False
+
+        session.patch(system_root, {"Boot": {"BootSourceOverrideTarget": target}})
+        return True
+
+    if redfish_vendor in ["dell", "Dell"]:
+        return set_boot_override_dell()
+    else:
+        return set_boot_override_generic()
 
 
 def check_redfish(config, data):
