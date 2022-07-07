@@ -833,6 +833,9 @@ def redfish_init(config, cspec, data):
     )
     logger.debug(node)
 
+    logger.info("Waiting 60 seconds for system normalization")
+    sleep(60)
+
     logger.info("Determining system disk...")
     storage_root = system_detail.get("Storage", {}).get("@odata.id")
     system_drive_target = get_system_drive_target(session, cspec_node, storage_root)
