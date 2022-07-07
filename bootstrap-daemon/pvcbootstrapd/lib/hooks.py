@@ -349,7 +349,7 @@ def run_hooks(config, cspec, cluster, nodes):
             notifications.send_webhook(config, "success", f"Cluster {cluster.name}: Completed hook task '{hook_name}'")
         except Exception as e:
             logger.warning(f"Error running hook: {e}")
-            notifications.send_webhook(config, "failure", f"Cluster {cluster.name}: Failed hook task '{hook_name}' with error {e}")
+            notifications.send_webhook(config, "failure", f"Cluster {cluster.name}: Failed hook task '{hook_name}' with error '{e}'")
 
         # Wait 5s between hooks
         sleep(5)

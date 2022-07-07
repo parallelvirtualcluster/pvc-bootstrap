@@ -83,4 +83,4 @@ def run_bootstrap(config, cspec, cluster, nodes):
                 notifications.send_webhook(config, "failure", f"Cluster {cluster.name}: Failed Ansible bootstrap; check pvcbootstrapd logs")
         except Exception as e:
             logger.warning(f"Error: {e}")
-            notifications.send_webhook(config, "failure", f"Cluster {cluster.name}: Failed Ansible bootstrap with error {e}; check pvcbootstrapd logs")
+            notifications.send_webhook(config, "failure", f"Cluster {cluster.name}: Failed Ansible bootstrap with error '{e}'; check pvcbootstrapd logs")
