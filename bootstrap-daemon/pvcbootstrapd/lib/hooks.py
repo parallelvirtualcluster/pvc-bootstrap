@@ -203,8 +203,6 @@ def run_hook_copy(config, targets, args):
         node_address = node.host_ipaddr
 
         source = args.get("source", [])
-        if not match(r"^/", source):
-            source = f"{config['ansible_source']}/{source}"
         destination = args.get("destination", [])
         mode = args.get("mode", [])
 
@@ -212,6 +210,8 @@ def run_hook_copy(config, targets, args):
 
         with run_paramiko(config, node_address) as c:
             for sfile, dfile, dmode in zip(source, destination, mode):
+                if not match(r"^/", sfile):
+                    sfile = f"{config['ansible_source']}/{sfile}"
                 tc = c.open_sftp()
                 tc.put(sfile, dfile)
                 tc.chmod(dfile, dmode)
