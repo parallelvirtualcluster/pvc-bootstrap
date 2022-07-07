@@ -866,7 +866,7 @@ def redfish_init(config, cspec, data):
     mgrattribute_detail = session.get(mgrattribute_root)
     mgrattribute_attributes = list(mgrattribute_detail["Attributes"].keys())
     for setting, value in cspec_node["bmc"].get("manager_settings", {}).items():
-        if setting not in bios_attributes:
+        if setting not in mgrattribute_attributes:
             continue
 
         payload = {"Attributes": {setting: value}}
