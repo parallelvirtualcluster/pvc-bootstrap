@@ -621,7 +621,6 @@ def set_boot_override(session, system_root, redfish_vendor, target):
     system_detail = session.get(system_root)
 
     def set_boot_override_dell():
-        # BootSourceOverrideEnabled': 'Disabled', 'BootSourceOverrideMode': 'UEFI', 'BootSourceOverrideTarget': 'None', 'UefiTargetBootSourceOverride': None,
         try:
             boot_targets = system_detail["Boot"]["BootSourceOverrideTarget@Redfish.AllowableValues"]
         except KeyError:
@@ -632,7 +631,7 @@ def set_boot_override(session, system_root, redfish_vendor, target):
             logger.warn(f"Failed to set boot override, key {target} not in {boot_targets}")
             return False
 
-        session.patch(system_root, {"Boot": {"BootSourceOverrideMode": "UEFI", "UefiTargetBootSourceOverride": target}})
+        session.patch(system_root, {"Boot": {"BootSourceOverrideMode": "UEFI", "BootSourceOverrideTarget": target}})
         return True
 
     def set_boot_override_generic():
