@@ -745,6 +745,10 @@ def redfish_init(config, cspec, data):
     notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Logged in to Redfish for host {cspec_fqdn} at {bmc_host}")
 
     logger.info("Characterizing node...")
+
+    logger.info("Waiting 60 seconds for system normalization")
+    sleep(60)
+
     # Get Refish bases
     logger.debug("Getting redfish bases")
     redfish_base_root = "/redfish/v1"
@@ -766,9 +770,6 @@ def redfish_init(config, cspec, data):
     logger.debug("Force off the system and turn on the indicator")
     set_power_state(session, system_root, redfish_vendor, "off")
     set_indicator_state(session, system_root, redfish_vendor, "on")
-
-    logger.info("Waiting 60 seconds for system normalization")
-    sleep(60)
 
     # Get the system details
     logger.debug("Get the system details")
