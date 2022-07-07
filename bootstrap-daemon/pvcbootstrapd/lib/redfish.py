@@ -632,7 +632,7 @@ def set_boot_override(session, system_root, redfish_vendor, target):
             logger.warn(f"Failed to set boot override, key {target} not in {boot_targets}")
             return False
 
-        session.patch(system_root, {"Boot": {"BootSourceOverrideEnabled": "Enabled", "BootSourceOverrideMode": "UEFI", "UefiTargetBootSourceOverride": target}})
+        session.patch(system_root, {"Boot": {"BootSourceOverrideMode": "UEFI", "UefiTargetBootSourceOverride": target}})
         return True
 
     def set_boot_override_generic():
