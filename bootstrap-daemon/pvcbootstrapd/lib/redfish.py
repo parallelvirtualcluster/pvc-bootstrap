@@ -64,7 +64,7 @@ class AuthenticationException(Exception):
             self.status_code = response.status_code
         else:
             self.status_code = None
-
+    
     def __str__(self):
         if self.status_code is not None:
             message = f"{self.short_message}: {self.full_message} {self.res_message} (HTTP Code: {self.status_code}, Severity: {self.severity}, ID: {self.message_id})"
@@ -103,12 +103,9 @@ class RedfishSession:
                 sleep(2)
                 tries += 1
 
-        if login_response is None:
-            logger.error("Failed to log in to Redfish")
-            return
-
-        if login_response.status_code not in [200, 201]:
+        if login_response is None or login_response.status_code not in [200, 201]:
             raise AuthenticationException("Login failed", response=login_response)
+
         logger.info(f"Logged in to Redfish at {host} successfully")
 
         self.host = host
@@ -714,6 +711,9 @@ def redfish_init(config, cspec, data):
     cspec_hostname = cspec_node["node"]["hostname"]
     cspec_fqdn = cspec_node["node"]["fqdn"]
 
+    logger.info("Waiting 60 seconds for system normalization")
+    sleep(60)
+
     notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Beginning Redfish initialization of host {cspec_fqdn}")
 
     cluster = db.get_cluster(config, name=cspec_cluster)
@@ -738,9 +738,11 @@ def redfish_init(config, cspec, data):
     # Create the session and log in
     session = RedfishSession(bmc_host, bmc_username, bmc_password)
     if session.host is None:
+        notifications.send_webhook(config, "failure", f"Cluster {cspec_cluster}: Failed to log in to Redfish for host {cspec_fqdn} at {bmc_host}")
         logger.info("Aborting Redfish configuration; reboot BMC to try again.")
         del session
         return
+    notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Logged in to Redfish for host {cspec_fqdn} at {bmc_host}")
 
     logger.info("Characterizing node...")
     # Get Refish bases
