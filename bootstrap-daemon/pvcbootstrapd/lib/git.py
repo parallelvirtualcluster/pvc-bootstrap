@@ -66,7 +66,6 @@ def pull_repository(config):
         g = git.cmd.Git(f"{config['ansible_path']}")
         g.pull(rebase=True, env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
         g.submodule("update", "--init", env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
-        notifications.send_webhook(config, "success", "Successfully updated Git repository")
     except Exception as e:
         logger.warn(e)
         notifications.send_webhook(config, "failure", "Failed to update Git repository")
