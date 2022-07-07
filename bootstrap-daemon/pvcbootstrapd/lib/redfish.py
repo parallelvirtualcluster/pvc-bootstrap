@@ -618,7 +618,7 @@ def set_boot_override(session, system_root, redfish_vendor, target):
     Set the system boot override to the desired target
     """
     print(redfish_vendor)
-    system_details = session.get(system_root)
+    system_detail = session.get(system_root)
 
     def set_boot_override_dell():
         # BootSourceOverrideEnabled': 'Disabled', 'BootSourceOverrideMode': 'UEFI', 'BootSourceOverrideTarget': 'None', 'UefiTargetBootSourceOverride': None,
@@ -649,7 +649,7 @@ def set_boot_override(session, system_root, redfish_vendor, target):
         session.patch(system_root, {"Boot": {"BootSourceOverrideTarget": target}})
         return True
 
-    if redfish_vendor in ["dell", "Dell"]:
+    if redfish_vendor == "Dell":
         return set_boot_override_dell()
     else:
         return set_boot_override_generic()
