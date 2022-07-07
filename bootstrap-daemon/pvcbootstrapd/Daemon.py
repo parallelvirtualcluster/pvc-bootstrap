@@ -261,7 +261,7 @@ def entrypoint():
 
     if "--init-only" in argv:
         print("Successfully initialized pvcbootstrapd; exiting.")
-        notifications.send_webhook(config, "info", "Successfully initialized pvcbootstrapd")
+        notifications.send_webhook(config, "completed", "Successfully initialized pvcbootstrapd")
         exit(0)
 
     # Start DNSMasq
