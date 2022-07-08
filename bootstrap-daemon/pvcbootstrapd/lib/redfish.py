@@ -895,7 +895,7 @@ def redfish_init(config, cspec, data):
 
     logger.info("Waiting for completion of node and cluster installation...")
     # Wait for the system to install and be configured
-    while node.state != "booted-completed":
+    while node.state != "completed":
         sleep(60)
         # Keep the Redfish session alive
         session.get(redfish_base_root)

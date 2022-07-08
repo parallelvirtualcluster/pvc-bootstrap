@@ -140,21 +140,11 @@ def host_checkin(config, data):
 
             hooks.run_hooks(config, cspec, cluster, ready_nodes)
 
-    elif data["action"] in ["system-boot_completed"]:
-        # Node has been fully configured and can be shut down for the final time
-        logger.info(f"Registering post-hooks boot for host {cspec_fqdn}")
-        notifications.send_webhook(config, "info", f"Cluster {cspec_cluster}: Registering post-hooks boot for host {cspec_fqdn}")
-        target_state = "booted-completed"
+            target_state = "completed"
+            for node in all_nodes:
+                host.set_boot_state(config, cspec, data, target_state)
 
-        host.set_boot_state(config, cspec, data, target_state)
-        sleep(1)
-
-        all_nodes = db.get_nodes_in_cluster(config, cspec_cluster)
-        ready_nodes = [node for node in all_nodes if node.state == target_state]
-
-        logger.info(f"Ready: {len(ready_nodes)}  All: {len(all_nodes)}")
-        if len(ready_nodes) >= len(all_nodes):
             # Hosts will now power down ready for real activation in production
-            sleep(30)
+            sleep(60)
             cluster = db.update_cluster_state(config, cspec_cluster, "completed")
             notifications.send_webhook(config, "completed", f"Cluster {cspec_cluster}: PVC bootstrap deployment completed")

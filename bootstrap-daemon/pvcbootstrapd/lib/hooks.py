@@ -354,13 +354,4 @@ def run_hooks(config, cspec, cluster, nodes):
         # Wait 5s between hooks
         sleep(5)
 
-    # Restart nodes to complete setup
-    hook_functions["script"](
-        config,
-        cluster_nodes,
-        {
-            "script": "#!/usr/bin/env bash\necho bootstrapped | sudo tee /etc/pvc-install.hooks\nsudo reboot"
-        },
-    )
-
     notifications.send_webhook(config, "success", f"Cluster {cluster.name}: Completed post-setup hook tasks")
