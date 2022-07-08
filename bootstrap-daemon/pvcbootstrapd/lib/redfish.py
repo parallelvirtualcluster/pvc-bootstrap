@@ -42,37 +42,6 @@ logger = get_task_logger(__name__)
 #
 # Helper Classes
 #
-class AuthenticationException(Exception):
-    def __init__(self, error=None, response=None):
-        if error is not None:
-            self.short_message = error
-        else:
-            self.short_message = "Generic authentication failure"
-
-        if response is not None:
-            rinfo = response.json()["error"]["@Message.ExtendedInfo"][0]
-            if rinfo.get("Message") is not None:
-                self.full_message = rinfo["Message"]
-                self.res_message = rinfo["Resolution"]
-                self.severity = rinfo["Severity"]
-                self.message_id = rinfo["MessageId"]
-            else:
-                self.full_message = ""
-                self.res_message = ""
-                self.severity = "Fatal"
-                self.message_id = rinfo["MessageId"]
-            self.status_code = response.status_code
-        else:
-            self.status_code = None
-    
-    def __str__(self):
-        if self.status_code is not None:
-            message = f"{self.short_message}: {self.full_message} {self.res_message} (HTTP Code: {self.status_code}, Severity: {self.severity}, ID: {self.message_id})"
-        else:
-            message = f"{self.short_message}"
-        return str(message)
-
-
 class RedfishSession:
     def __init__(self, host, username, password):
         # Disable urllib3 warnings
@@ -104,7 +73,25 @@ class RedfishSession:
                 tries += 1
 
         if login_response is None or login_response.status_code not in [200, 201]:
-            raise AuthenticationException("Login failed", response=login_response)
+            try:
+                rinfo = response.json()["error"]["@Message.ExtendedInfo"][0]
+            except Exception:
+                rinfo = {}
+            if rinfo.get("Message") is not None:
+                full_message = rinfo["Message"]
+                res_message = rinfo["Resolution"]
+                severity = rinfo["Severity"]
+                message_id = rinfo["MessageId"]
+            else:
+                full_message = ""
+                res_message = ""
+                severity = "Fatal"
+                message_id = rinfo.get("MessageId", "No message ID")
+            status_code = login_response.status_code
+            failure_message = f"Redfish failure: {full_message} {res_message} (HTTP Code: {status_code}, Severity: {severity}, ID: {message_id})"
+            logger.error(f"Failed to log in to Redfish at {host}")
+            logger.error(failure_message)
+            return
 
         logger.info(f"Logged in to Redfish at {host} successfully")
 
@@ -132,7 +119,25 @@ class RedfishSession:
         )
 
         if logout_response.status_code not in [200, 201]:
-            raise AuthenticationException("Logout failed", response=logout_response)
+            try:
+                rinfo = response.json()["error"]["@Message.ExtendedInfo"][0]
+            except Exception:
+                rinfo = {}
+            if rinfo.get("Message") is not None:
+                full_message = rinfo["Message"]
+                res_message = rinfo["Resolution"]
+                severity = rinfo["Severity"]
+                message_id = rinfo["MessageId"]
+            else:
+                full_message = ""
+                res_message = ""
+                severity = "Fatal"
+                message_id = rinfo.get("MessageId", "No message ID")
+            status_code = logout_response.status_code
+            failure_message = f"Redfish failure: {full_message} {res_message} (HTTP Code: {status_code}, Severity: {severity}, ID: {message_id})"
+            logger.error(f"Failed to log out of Redfish at {host}")
+            logger.error(failure_message)
+            return
         logger.info(f"Logged out of Redfish at {self.host} successfully")
 
     def get(self, uri):
@@ -738,15 +743,15 @@ def redfish_init(config, cspec, data):
     session = RedfishSession(bmc_host, bmc_username, bmc_password)
     if session.host is None:
         notifications.send_webhook(config, "failure", f"Cluster {cspec_cluster}: Failed to log in to Redfish for host {cspec_fqdn} at {bmc_host}")
-        logger.info("Aborting Redfish configuration; reboot BMC to try again.")
+        logger.error("Aborting Redfish configuration; reboot BMC to try again.")
         del session
         return
     notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Logged in to Redfish for host {cspec_fqdn} at {bmc_host}")
 
-    logger.info("Characterizing node...")
-
     logger.info("Waiting 60 seconds for system normalization")
     sleep(60)
+
+    logger.info("Characterizing node...")
 
     # Get Refish bases
     logger.debug("Getting redfish bases")
