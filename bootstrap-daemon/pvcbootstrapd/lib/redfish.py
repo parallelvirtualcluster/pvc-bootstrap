@@ -742,7 +742,7 @@ def redfish_init(config, cspec, data):
     # Create the session and log in
     session = RedfishSession(bmc_host, bmc_username, bmc_password)
     if session.host is None:
-        notifications.send_webhook(config, "failure", f"Cluster {cspec_cluster}: Failed to log in to Redfish for host {cspec_fqdn} at {bmc_host}")
+        notifications.send_webhook(config, "failure", f"Cluster {cspec_cluster}: Failed to log in to Redfish for host {cspec_fqdn} at {bmc_host}. Check pvcbootstrapd logs and reset this host's BMC to retry.")
         logger.error("Aborting Redfish configuration; reset BMC to retry.")
         del session
         return
