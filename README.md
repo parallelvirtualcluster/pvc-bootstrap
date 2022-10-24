@@ -60,7 +60,7 @@ The PVC Bootstrap system is designed to heavily leverage Redfish in its automati
 
 1. Connect power to the servers, but do not manually power on the servers - Redfish will handle this aspect after characterizing each host, as well as manage boot, RAID array creation (as documented in `bootstrap.yml`), BIOS configuration, etc.
 
-1. Wait for the cluster bootstrapping to complete; you can watch the output of the `pvcbootstrapd` and `pvcbootstrapd-worker` services on the Bootstrap host to see progress. If supported, the indicator LEDs of the nodes will be lit during setup and will be disabled upon completion to provide a physical indication of the process.
+1. Wait for the cluster bootstrapping to complete; you can watch the output of the `pvcbootstrapd` and `pvcbootstrapd-worker` services on the Bootstrap host to see progress, or configure the system to send webhooks to a remote target (e.g. Slack/Mattermost messages). If supported, the indicator LEDs of the nodes will be lit during setup and will be disabled upon completion to provide a physical indication of the process.
 
 1. Verify and power off the servers and put them into production; you may need to complete several post-install tasks (for instance setting the production BMC networking via `sudo ifup ipmi` on each node) before the cluster is completely finished.
 
