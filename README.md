@@ -188,6 +188,6 @@ pvcbootstrapd_checkin_uri="http://10.255.255.1:9999/checkin/host"
 
 ## Bootstrap Process
 
-This diagram outlines the various states the nodes and clusters will be in throughout the setup process along with the individual steps for reference.
+This diagram outlines the various states the nodes and clusters will be in throughout the setup process along with the individual steps for reference. Which node starts characterizing first can be random, but is shown as `node1` for clarity. For non-Redflish installs, the first several steps must be completed manually as referenced above.
 
 ![PVC Bootstrap Process](/docs/images/pvcbootstrapd-process.png)
