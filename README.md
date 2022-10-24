@@ -84,7 +84,7 @@ The PVC Bootstrap system can still handle nodes without Redfish support, for ins
 
 1. Power on the servers and set them to boot temporarily (one time) from PXE.
 
-1. Wait for the cluster bootstrapping to complete; you can watch the output of the `pvcbootstrapd` and `pvcbootstrapd-worker` services on the Bootstrap host to see progress. If supported, the indicator LEDs of the nodes will be lit during setup and will be disabled upon completion to provide a physical indication of the process.
+1. Wait for the cluster bootstrapping to complete; you can watch the output of the `pvcbootstrapd` and `pvcbootstrapd-worker` services on the Bootstrap host to see progress, or configure the system to send webhooks to a remote target (e.g. Slack/Mattermost messages). If supported, the indicator LEDs of the nodes will be lit during setup and will be disabled upon completion to provide a physical indication of the process.
 
 1. Verify and power off the servers and put them into production; you may need to complete several post-install tasks (for instance setting the production BMC networking via `sudo ifup ipmi` on each node) before the cluster is completely finished.
 
