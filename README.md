@@ -150,13 +150,22 @@ filesystem="ext4"
 # The hostname of the system (set per-run)
 target_hostname="hv1.example.tld"
 
-# The target system disk path
+# The target system disk path; must be a single disk (mdadm/software RAID is not supported)
+# This will usually use a `detect` string. A "detect" string is a string in the form "detect:<NAME>:<HUMAN-SIZE>:<ID>".
+# Detect strings allow for automatic determination of Linux block device paths from known basic information
+# about disks by leveraging "lsscsi" on the target host. The "NAME" should be some descriptive identifier,
+# for instance the manufacturer (e.g. "INTEL"), the "HUMAN-SIZE" should be the labeled human-readable size
+# of the device (e.g. "480GB", "1.92TB"), and "ID" specifies the Nth 0-indexed device which matches the
+# NAME" and "HUMAN-SIZE" values (e.g. "2" would match the third device with the corresponding "NAME" and
+# "HUMAN-SIZE"). When matching against sizes, there is +/- 3% flexibility to account for base-1000 vs.
+# base-1024 differences and rounding errors. The "NAME" may contain whitespace but if so the entire detect
+# string should be quoted, and is case-insensitive.
 target_disk="detect:LOGICAL:146GB:0"
 
-# SSH key method (usually tftp)
+# SSH key fetch method (usually tftp)
 target_keys_method="tftp"
 
-# SSH key path (usually keys.txt)
+# SSH key fetch path (usually keys.txt)
 target_keys_path="keys.txt"
 
 # Deploy username (usually deploy)
