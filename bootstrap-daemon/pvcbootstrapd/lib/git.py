@@ -76,7 +76,7 @@ def pull_repository(config):
     logger.info("Completed repository synchonization")
 
 
-def commit_repository(config):
+def commit_repository(config, message="Generic commit"):
     """
     Commit uncommitted changes to the Ansible git repository
     """
@@ -94,6 +94,8 @@ def commit_repository(config):
             g.commit(
                 "-m",
                 "Automated commit from PVC Bootstrap Ansible subsystem",
+                "-m",
+                message,
                 author="PVC Bootstrap <git@pvcbootstrapd>",
                 env=commit_env,
             )

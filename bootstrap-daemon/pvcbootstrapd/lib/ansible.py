@@ -76,7 +76,7 @@ def run_bootstrap(config, cspec, cluster, nodes):
             logger.info("{}: {}".format(r.status, r.rc))
             logger.info(r.stats)
             if r.rc == 0:
-                git.commit_repository(config)
+                git.commit_repository(config, f"Generated files for cluster '{cluster.name}'")
                 git.push_repository(config)
                 notifications.send_webhook(config, "success", f"Cluster {cluster.name}: Completed Ansible bootstrap")
             else:
