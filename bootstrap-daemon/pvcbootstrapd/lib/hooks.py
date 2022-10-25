@@ -69,6 +69,7 @@ def run_hook_osddb(config, targets, args):
             stdin, stdout, stderr = c.exec_command(pvc_cmd_string)
             logger.debug(stdout.readlines())
             logger.debug(stderr.readlines())
+        return stdout.channel.recv_exit_status()
 
 
 def run_hook_osd(config, targets, args):
@@ -98,6 +99,7 @@ def run_hook_osd(config, targets, args):
             stdin, stdout, stderr = c.exec_command(pvc_cmd_string)
             logger.debug(stdout.readlines())
             logger.debug(stderr.readlines())
+        return stdout.channel.recv_exit_status()
 
 
 def run_hook_pool(config, targets, args):
@@ -127,7 +129,7 @@ def run_hook_pool(config, targets, args):
             logger.debug(stderr.readlines())
 
         # This only runs once on whatever the first node is
-        break
+        return stdout.channel.recv_exit_status()
 
 
 def run_hook_network(config, targets, args):
@@ -191,7 +193,7 @@ def run_hook_network(config, targets, args):
             logger.debug(stderr.readlines())
 
         # This only runs once on whatever the first node is
-        break
+        return stdout.channel.recv_exit_status()
 
 
 def run_hook_copy(config, targets, args):
@@ -273,6 +275,8 @@ def run_hook_script(config, targets, args):
             logger.debug(stdout.readlines())
             logger.debug(stderr.readlines())
 
+        return stdout.channel.recv_exit_status()
+
 
 def run_hook_webhook(config, targets, args):
     """
@@ -345,7 +349,9 @@ def run_hooks(config, cspec, cluster, nodes):
         # Run the hook function
         try:
             notifications.send_webhook(config, "begin", f"Cluster {cluster.name}: Running hook task '{hook_name}'")
-            hook_functions[hook_type](config, target_nodes, hook_args)
+            retcode = hook_functions[hook_type](config, target_nodes, hook_args)
+            if retcode > 0:
+                raise Exception(f"Hook returned with code {retcode}")
             notifications.send_webhook(config, "success", f"Cluster {cluster.name}: Completed hook task '{hook_name}'")
         except Exception as e:
             logger.warning(f"Error running hook: {e}")
