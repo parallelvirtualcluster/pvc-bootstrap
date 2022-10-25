@@ -66,7 +66,7 @@ pvc:
     path: "/var/home/joshua/pvc"
 
     # Path to the deploy key (if applicable) used to clone and pull the repository
-    keyfile: "/var/home/joshua/id_ed25519.joshua.key"
+    key_file: "/var/home/joshua/id_ed25519.joshua.key"
 
     # Git remote URI for the repository
     remote: "ssh://git@git.bonifacelabs.ca:2222/bonifacelabs/pvc.git"
@@ -76,6 +76,9 @@ pvc:
 
     # Clusters configuration file
     clusters_file: "clusters.yml"
+
+    # Lock file to use for Git interaction
+    lock_file: "/run/pvcbootstrapd.lock"
 
     # Filenames of the various group_vars components of a cluster
     # Generally with pvc-ansible this will contain 2 files: "base.yml", and "pvc.yml"; refer to the

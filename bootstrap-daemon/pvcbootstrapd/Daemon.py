@@ -179,7 +179,7 @@ def read_config():
             )
 
     # Get the Ansible configuration
-    for key in ["path", "keyfile", "remote", "branch", "clusters_file"]:
+    for key in ["path", "key_file", "remote", "branch", "clusters_file", "lock_file"]:
         try:
             config[f"ansible_{key}"] = o_ansible[key]
         except Exception:

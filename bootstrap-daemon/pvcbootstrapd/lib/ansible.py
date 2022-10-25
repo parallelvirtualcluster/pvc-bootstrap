@@ -66,7 +66,7 @@ def run_bootstrap(config, cspec, cluster, nodes):
                 limit=f"{cluster.name}",
                 playbook=f"{config['ansible_path']}/pvc.yml",
                 extravars={
-                    "ansible_ssh_private_key_file": config["ansible_keyfile"],
+                    "ansible_ssh_private_key_file": config["ansible_key_file"],
                     "bootstrap": "yes",
                 },
                 forks=len(nodes),

@@ -43,7 +43,7 @@ def run_paramiko(config, node_address):
     ssh_client.connect(
         hostname=node_address,
         username=config["deploy_username"],
-        key_filename=config["ansible_keyfile"],
+        key_filename=config["ansible_key_file"],
     )
     yield ssh_client
     ssh_client.close()

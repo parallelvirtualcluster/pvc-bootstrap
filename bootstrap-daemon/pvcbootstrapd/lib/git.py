@@ -37,7 +37,7 @@ def init_repository(config):
     Clone the Ansible git repository
     """
     try:
-        git_ssh_cmd = f"ssh -i {config['ansible_keyfile']} -o StrictHostKeyChecking=no"
+        git_ssh_cmd = f"ssh -i {config['ansible_key_file']} -o StrictHostKeyChecking=no"
         if not os.path.exists(config["ansible_path"]):
             print(
                 f"First run: cloning repository {config['ansible_remote']} branch {config['ansible_branch']} to {config['ansible_path']}"
@@ -61,12 +61,10 @@ def pull_repository(config):
     """
     Pull (with rebase) the Ansible git repository
     """
-    lockfile = "/tmp/pvcbootstrapd-git.lock"
-    lock = FileLock(lockfile)
-    with lock:
+    with FileLock(config['ansible_lock_file']):
         logger.info(f"Updating local configuration repository {config['ansible_path']}")
         try:
-            git_ssh_cmd = f"ssh -i {config['ansible_keyfile']} -o StrictHostKeyChecking=no"
+            git_ssh_cmd = f"ssh -i {config['ansible_key_file']} -o StrictHostKeyChecking=no"
             g = git.cmd.Git(f"{config['ansible_path']}")
             logger.debug("Performing git pull")
             g.pull(rebase=True, env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
@@ -82,9 +80,7 @@ def commit_repository(config):
     """
     Commit uncommitted changes to the Ansible git repository
     """
-    lockfile = "/tmp/pvcbootstrapd-git.lock"
-    lock = FileLock(lockfile)
-    with lock:
+    with FileLock(config['ansible_lock_file']):
         logger.info(
             f"Committing changes to local configuration repository {config['ansible_path']}"
         )
@@ -111,14 +107,12 @@ def push_repository(config):
     """
     Push changes to the default remote
     """
-    lockfile = "/tmp/pvcbootstrapd-git.lock"
-    lock = FileLock(lockfile)
-    with lock:
+    with FileLock(config['ansible_lock_file']):
         logger.info(
             f"Pushing changes from local configuration repository {config['ansible_path']}"
         )
         try:
-            git_ssh_cmd = f"ssh -i {config['ansible_keyfile']} -o StrictHostKeyChecking=no"
+            git_ssh_cmd = f"ssh -i {config['ansible_key_file']} -o StrictHostKeyChecking=no"
             g = git.Repo(f"{config['ansible_path']}")
             origin = g.remote(name="origin")
             origin.push(env=dict(GIT_SSH_COMMAND=git_ssh_cmd))

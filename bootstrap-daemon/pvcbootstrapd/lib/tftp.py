@@ -43,7 +43,7 @@ def init_tftp(config):
         os.makedirs(config["tftp_root_path"])
         os.makedirs(config["tftp_host_path"])
         shutil.copyfile(
-            f"{config['ansible_keyfile']}.pub", f"{config['tftp_root_path']}/keys.txt"
+            f"{config['ansible_key_file']}.pub", f"{config['tftp_root_path']}/keys.txt"
         )
 
         build_tftp_repository(config)
