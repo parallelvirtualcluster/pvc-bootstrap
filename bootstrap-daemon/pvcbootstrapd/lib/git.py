@@ -22,6 +22,7 @@
 import os.path
 import git
 import yaml
+from filelock import FileLock
 
 import pvcbootstrapd.lib.notifications as notifications
 
@@ -60,61 +61,71 @@ def pull_repository(config):
     """
     Pull (with rebase) the Ansible git repository
     """
-    logger.info(f"Updating local configuration repository {config['ansible_path']}")
-    try:
-        git_ssh_cmd = f"ssh -i {config['ansible_keyfile']} -o StrictHostKeyChecking=no"
-        g = git.cmd.Git(f"{config['ansible_path']}")
-        g.pull(rebase=True, env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
-        g.submodule("update", "--init", env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
-    except Exception as e:
-        logger.warn(e)
-        notifications.send_webhook(config, "failure", "Failed to update Git repository")
+    lockfile = "/tmp/pvcbootstrapd-git.lock"
+    lock = FileLock(lockfile)
+    with lock:
+        logger.info(f"Updating local configuration repository {config['ansible_path']}")
+        try:
+            git_ssh_cmd = f"ssh -i {config['ansible_keyfile']} -o StrictHostKeyChecking=no"
+            g = git.cmd.Git(f"{config['ansible_path']}")
+            logger.debug("Performing git pull")
+            g.pull(rebase=True, env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
+            logger.debug("Performing git submodule update")
+            g.submodule("update", "--init", env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
+        except Exception as e:
+            logger.warn(e)
+            notifications.send_webhook(config, "failure", "Failed to update Git repository")
+    logger.info("Completed repository synchonization")
 
 
 def commit_repository(config):
     """
     Commit uncommitted changes to the Ansible git repository
     """
-    logger.info(
-        f"Committing changes to local configuration repository {config['ansible_path']}"
-    )
-
-    try:
-        g = git.cmd.Git(f"{config['ansible_path']}")
-        g.add("--all")
-        commit_env = {
-            "GIT_COMMITTER_NAME": "PVC Bootstrap",
-            "GIT_COMMITTER_EMAIL": "git@pvcbootstrapd",
-        }
-        g.commit(
-            "-m",
-            "Automated commit from PVC Bootstrap Ansible subsystem",
-            author="PVC Bootstrap <git@pvcbootstrapd>",
-            env=commit_env,
+    lockfile = "/tmp/pvcbootstrapd-git.lock"
+    lock = FileLock(lockfile)
+    with lock:
+        logger.info(
+            f"Committing changes to local configuration repository {config['ansible_path']}"
         )
-        notifications.send_webhook(config, "success", "Successfully committed to Git repository")
-    except Exception as e:
-        logger.warn(e)
-        notifications.send_webhook(config, "failure", "Failed to commit to Git repository")
+        try:
+            g = git.cmd.Git(f"{config['ansible_path']}")
+            g.add("--all")
+            commit_env = {
+                "GIT_COMMITTER_NAME": "PVC Bootstrap",
+                "GIT_COMMITTER_EMAIL": "git@pvcbootstrapd",
+            }
+            g.commit(
+                "-m",
+                "Automated commit from PVC Bootstrap Ansible subsystem",
+                author="PVC Bootstrap <git@pvcbootstrapd>",
+                env=commit_env,
+            )
+            notifications.send_webhook(config, "success", "Successfully committed to Git repository")
+        except Exception as e:
+            logger.warn(e)
+            notifications.send_webhook(config, "failure", "Failed to commit to Git repository")
 
 
 def push_repository(config):
     """
     Push changes to the default remote
     """
-    logger.info(
-        f"Pushing changes from local configuration repository {config['ansible_path']}"
-    )
-
-    try:
-        git_ssh_cmd = f"ssh -i {config['ansible_keyfile']} -o StrictHostKeyChecking=no"
-        g = git.Repo(f"{config['ansible_path']}")
-        origin = g.remote(name="origin")
-        origin.push(env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
-        notifications.send_webhook(config, "success", "Successfully pushed Git repository")
-    except Exception as e:
-        logger.warn(e)
-        notifications.send_webhook(config, "failure", "Failed to push Git repository")
+    lockfile = "/tmp/pvcbootstrapd-git.lock"
+    lock = FileLock(lockfile)
+    with lock:
+        logger.info(
+            f"Pushing changes from local configuration repository {config['ansible_path']}"
+        )
+        try:
+            git_ssh_cmd = f"ssh -i {config['ansible_keyfile']} -o StrictHostKeyChecking=no"
+            g = git.Repo(f"{config['ansible_path']}")
+            origin = g.remote(name="origin")
+            origin.push(env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
+            notifications.send_webhook(config, "success", "Successfully pushed Git repository")
+        except Exception as e:
+            logger.warn(e)
+            notifications.send_webhook(config, "failure", "Failed to push Git repository")
 
 
 def load_cspec_yaml(config):
