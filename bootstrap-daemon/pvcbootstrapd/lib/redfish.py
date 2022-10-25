@@ -748,10 +748,11 @@ def redfish_init(config, cspec, data):
         return
     notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Logged in to Redfish for host {cspec_fqdn} at {bmc_host}")
 
-    logger.info("Waiting 60 seconds for system normalization")
-    sleep(60)
+    logger.info("Waiting 5 seconds for system normalization")
+    sleep(5)
 
     logger.info("Characterizing node...")
+    notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Beginning Redfish characterization of host {cspec_fqdn} at {bmc_host}")
     try:
 
         # Get Refish bases
