@@ -50,24 +50,38 @@ def dnsmasq_checkin(config, data):
         )
         cspec = git.load_cspec_yaml(config)
         is_in_bootstrap_map = True if data["macaddr"] in cspec["bootstrap"] else False
-        if is_in_bootstrap_map:
-            notifications.send_webhook(config, "info", f"New host checkin from MAC {data['macaddr']} as host {cspec['bootstrap'][data['macaddr']]['node']['fqdn']} in cluster {cspec['bootstrap'][data['macaddr']]['node']['cluster']}")
-            if (
-                cspec["bootstrap"][data["macaddr"]]["bmc"].get("redfish", None)
-                is not None
-            ):
-                if cspec["bootstrap"][data["macaddr"]]["bmc"]["redfish"]:
-                    is_redfish = True
-                else:
-                    is_redfish = False
+        try:
+            if is_in_bootstrap_map
+                cspec_cluster = cspec["bootstrap"][data["macaddr"]]["node"]["cluster"]
+                is_registered = True if data["macaddr"] in [x.bmc_macaddr for x in db.get_nodes_in_cluster(config, cspec_cluster)] else False
             else:
-                is_redfish = redfish.check_redfish(config, data)
+                raise Exception()
+        except Exception:
+            is_registered = False
 
-            logger.info(f"Is device '{data['macaddr']}' Redfish capable? {is_redfish}")
-            if is_redfish:
-                redfish.redfish_init(config, cspec, data)
-        else:
+        if not is_in_bootstrap_map:
             logger.warn(f"Device '{data['macaddr']}' not in bootstrap map; ignoring.")
+            return
+
+        if is_registered:
+            logger.info(f"Device '{data['macaddr']}' has already been bootstrapped; ignoring.")
+            return
+
+        notifications.send_webhook(config, "info", f"New host checkin from MAC {data['macaddr']} as host {cspec['bootstrap'][data['macaddr']]['node']['fqdn']} in cluster {cspec['bootstrap'][data['macaddr']]['node']['cluster']}")
+        if (
+            cspec["bootstrap"][data["macaddr"]]["bmc"].get("redfish", None)
+            is not None
+        ):
+            if cspec["bootstrap"][data["macaddr"]]["bmc"]["redfish"]:
+                is_redfish = True
+            else:
+                is_redfish = False
+        else:
+            is_redfish = redfish.check_redfish(config, data)
+
+        logger.info(f"Is device '{data['macaddr']}' Redfish capable? {is_redfish}")
+        if is_redfish:
+            redfish.redfish_init(config, cspec, data)
 
         return
 
@@ -142,7 +156,7 @@ def host_checkin(config, data):
 
             target_state = "completed"
             for node in all_nodes:
-                host.set_boot_state(config, cspec, node, target_state)
+                host.set_boot_state(config, cspec, data, target_state)
 
             # Hosts will now power down ready for real activation in production
             sleep(60)
