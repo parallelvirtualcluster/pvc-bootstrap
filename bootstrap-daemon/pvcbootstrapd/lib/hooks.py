@@ -219,11 +219,14 @@ def run_hook_copy(config, targets, args):
                 tc.chmod(dfile, int(dmode, 8))
                 tc.close()
 
+    return 0
+
 
 def run_hook_script(config, targets, args):
     """
     Run a script on the targets
     """
+    return_status = 0
     for node in targets:
         node_name = node.name
         node_address = node.host_ipaddr
@@ -274,8 +277,10 @@ def run_hook_script(config, targets, args):
             stdin, stdout, stderr = c.exec_command(remote_command)
             logger.debug(stdout.readlines())
             logger.debug(stderr.readlines())
+            if stdout.channel.recv_exit_status() != 0:
+                return_status = stdout.channel.recv_exit_status()
 
-        return stdout.channel.recv_exit_status()
+    return return_status
 
 
 def run_hook_webhook(config, targets, args):
