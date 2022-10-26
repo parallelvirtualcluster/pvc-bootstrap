@@ -142,7 +142,7 @@ def host_checkin(config, data):
 
             target_state = "completed"
             for node in all_nodes:
-                host.set_boot_state(config, cspec, data, target_state)
+                node.set_boot_state(config, cspec, data, target_state)
 
             # Hosts will now power down ready for real activation in production
             sleep(60)
