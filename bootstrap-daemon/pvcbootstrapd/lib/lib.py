@@ -51,11 +51,11 @@ def dnsmasq_checkin(config, data):
         cspec = git.load_cspec_yaml(config)
         is_in_bootstrap_map = True if data["macaddr"] in cspec["bootstrap"] else False
         try:
-            if is_in_bootstrap_map
+            if is_in_bootstrap_map:
                 cspec_cluster = cspec["bootstrap"][data["macaddr"]]["node"]["cluster"]
                 is_registered = True if data["macaddr"] in [x.bmc_macaddr for x in db.get_nodes_in_cluster(config, cspec_cluster)] else False
             else:
-                raise Exception()
+                is_registered = False
         except Exception:
             is_registered = False
 
@@ -154,9 +154,7 @@ def host_checkin(config, data):
 
             hooks.run_hooks(config, cspec, cluster, ready_nodes)
 
-            target_state = "completed"
-            for node in all_nodes:
-                host.set_boot_state(config, cspec, data, target_state)
+            host.set_completed(config, cspec, cluster)
 
             # Hosts will now power down ready for real activation in production
             sleep(60)

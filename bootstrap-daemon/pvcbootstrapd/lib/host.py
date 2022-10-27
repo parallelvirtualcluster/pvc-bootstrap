@@ -84,3 +84,16 @@ def set_boot_state(config, cspec, data, state):
     db.update_node_state(config, cspec_cluster, cspec_hostname, state)
     node = db.get_node(config, cspec_cluster, name=cspec_hostname)
     logger.debug(node)
+
+
+def set_completed(config, cspec, cluster):
+    nodes = list()
+    for bmc_macaddr in cspec["bootstrap"]:
+        if cspec["bootstrap"][bmc_macaddr]["node"]["cluster"] == cluster:
+            nodes.append(cspec["bootstrap"][bmc_macaddr])
+    for node in nodes:
+        cspec_cluster = node["node"]["cluster"]
+        cspec_hostname = node["node"]["hostname"]
+        db.update_node_state(config, cspec_cluster, cspec_hostname, "completed")
+        node = db.get_node(config, cspec_cluster, name=cspec_hostname)
+        logger.debug(node)
