@@ -154,7 +154,7 @@ def host_checkin(config, data):
 
             hooks.run_hooks(config, cspec, cluster, ready_nodes)
 
-            host.set_completed(config, cspec, cluster)
+            host.set_completed(config, cspec, cspec_cluster)
 
             # Hosts will now power down ready for real activation in production
             sleep(60)
