@@ -953,7 +953,7 @@ def redfish_init(config, cspec, data):
         node = db.get_node(config, cspec_cluster, name=cspec_hostname)
 
     # Graceful shutdown of the machine
-    notifications.send_webhook(config, "info", f"Cluster {cspec_cluster}: Powering off host {cspec_fqdn}")
+    notifications.send_webhook(config, "info", f"Cluster {cspec_cluster}: Shutting down host {cspec_fqdn}")
     set_power_state(session, system_root, redfish_vendor, "GracefulShutdown")
     system_power_state = "On"
     while system_power_state != "Off":
@@ -964,6 +964,8 @@ def redfish_init(config, cspec, data):
 
     # Turn off the indicator to indicate bootstrap has completed
     set_indicator_state(session, system_root, redfish_vendor, "off")
+
+    notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Powered off host {cspec_fqdn}")
 
     # We must delete the session
     del session

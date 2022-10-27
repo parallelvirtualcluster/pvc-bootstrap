@@ -157,6 +157,6 @@ def host_checkin(config, data):
             host.set_completed(config, cspec, cspec_cluster)
 
             # Hosts will now power down ready for real activation in production
-            sleep(60)
+            sleep(300)
             cluster = db.update_cluster_state(config, cspec_cluster, "completed")
             notifications.send_webhook(config, "completed", f"Cluster {cspec_cluster}: PVC bootstrap deployment completed")
