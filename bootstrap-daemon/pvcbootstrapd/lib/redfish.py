@@ -748,8 +748,8 @@ def redfish_init(config, cspec, data):
         return
     notifications.send_webhook(config, "success", f"Cluster {cspec_cluster}: Logged in to Redfish for host {cspec_fqdn} at {bmc_host}")
 
-    logger.info("Waiting 5 seconds for system normalization")
-    sleep(5)
+    logger.info("Waiting 30 seconds for system normalization")
+    sleep(30)
 
     logger.info("Characterizing node...")
     notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Beginning Redfish characterization of host {cspec_fqdn} at {bmc_host}")
@@ -792,24 +792,29 @@ def redfish_init(config, cspec, data):
         try:
             ethernet_root = system_detail["EthernetInterfaces"]["@odata.id"].rstrip("/")
             ethernet_detail = session.get(ethernet_root)
+            logger.debug(f"Found Ethernet detail: {ethernet_detail}")
             embedded_ethernet_detail_members = [e for e in ethernet_detail["Members"] if "Embedded" in e["@odata.id"]]
             embedded_ethernet_detail_members.sort(key = lambda k: k["@odata.id"])
+            logger.debug(f"Found Ethernet members: {embedded_ethernet_detail_members}")
             first_interface_root = embedded_ethernet_detail_members[0]["@odata.id"].rstrip("/")
             first_interface_detail = session.get(first_interface_root)
         # Something went wrong, so fall back
-        except KeyError:
+        except Exception:
             first_interface_detail = dict()
 
+        logger.debug(f"First interface detail: {first_interface_detail}")
+        logger.debug(f"HostCorrelation detail: {system_detail.get('HostCorrelation', {})}")
         # Try to get the MAC address directly from the interface detail (Redfish standard)
-        logger.debug("Try to get the MAC address directly from the interface detail (Redfish standard)")
         if first_interface_detail.get("MACAddress") is not None:
+            logger.debug("Try to get the MAC address directly from the interface detail (Redfish standard)")
             bootstrap_mac_address = first_interface_detail["MACAddress"].strip().lower()
         # Try to get the MAC address from the HostCorrelation->HostMACAddress (HP DL360x G8)
         elif len(system_detail.get("HostCorrelation", {}).get("HostMACAddress", [])) > 0:
+            logger.debug("Try to get the MAC address from the HostCorrelation (HP iLO)")
             bootstrap_mac_address = (
                 system_detail["HostCorrelation"]["HostMACAddress"][0].strip().lower()
             )
-        # We can't find it, so use a dummy value
+        # We can't find it, so abort
         else:
             logger.error("Could not find a valid MAC address for the bootstrap interface.")
             return
@@ -878,43 +883,43 @@ def redfish_init(config, cspec, data):
         return
 
     # Adjust any BIOS settings
-    logger.info("Adjusting BIOS settings...")
-    try:
-        bios_root = system_detail.get("Bios", {}).get("@odata.id")
-        if bios_root is not None:
-            bios_detail = session.get(bios_root)
-            bios_attributes = list(bios_detail["Attributes"].keys())
-            for setting, value in cspec_node["bmc"].get("bios_settings", {}).items():
-                if setting not in bios_attributes:
-                    continue
-
-                payload = {"Attributes": {setting: value}}
-                session.patch(f"{bios_root}/Settings", payload)
-    except Exception as e:
-        notifications.send_webhook(config, "failure", f"Cluster {cspec_cluster}: Failed to set BIOS settings for host {cspec_fqdn} at {bmc_host}. Check pvcbootstrapd logs and reset this host's BMC to retry.")
-        logger.error(f"Cluster {cspec_cluster}: Failed to set BIOS settings for host {cspec_fqdn} at {bmc_host}: {e}")
-        logger.error("Aborting Redfish configuration; reset BMC to retry.")
-        del session
-        return
+    if len(cspec_node["bmc"].get("bios_settings", {}).items()) > 0:
+        logger.info("Adjusting BIOS settings...")
+        try:
+            bios_root = system_detail.get("Bios", {}).get("@odata.id")
+            if bios_root is not None:
+                bios_detail = session.get(bios_root)
+                bios_attributes = list(bios_detail["Attributes"].keys())
+                for setting, value in cspec_node["bmc"].get("bios_settings", {}).items():
+                    if setting not in bios_attributes:
+                        continue
+                    payload = {"Attributes": {setting: value}}
+                    session.patch(f"{bios_root}/Settings", payload)
+        except Exception as e:
+            notifications.send_webhook(config, "failure", f"Cluster {cspec_cluster}: Failed to set BIOS settings for host {cspec_fqdn} at {bmc_host}. Check pvcbootstrapd logs and reset this host's BMC to retry.")
+            logger.error(f"Cluster {cspec_cluster}: Failed to set BIOS settings for host {cspec_fqdn} at {bmc_host}: {e}")
+            logger.error("Aborting Redfish configuration; reset BMC to retry.")
+            del session
+            return
 
     # Adjust any Manager settings
-    logger.info("Adjusting Manager settings...")
-    try:
-        mgrattribute_root = f"{manager_root}/Attributes"
-        mgrattribute_detail = session.get(mgrattribute_root)
-        mgrattribute_attributes = list(mgrattribute_detail["Attributes"].keys())
-        for setting, value in cspec_node["bmc"].get("manager_settings", {}).items():
-            if setting not in mgrattribute_attributes:
-                continue
-
-            payload = {"Attributes": {setting: value}}
-            session.patch(mgrattribute_root, payload)
-    except Exception as e:
-        notifications.send_webhook(config, "failure", f"Cluster {cspec_cluster}: Failed to set BMC settings for host {cspec_fqdn} at {bmc_host}. Check pvcbootstrapd logs and reset this host's BMC to retry.")
-        logger.error(f"Cluster {cspec_cluster}: Failed to set BMC settings for host {cspec_fqdn} at {bmc_host}: {e}")
-        logger.error("Aborting Redfish configuration; reset BMC to retry.")
-        del session
-        return
+    if len(cspec_node["bmc"].get("manager_settings", {}).items()) > 0:
+        logger.info("Adjusting Manager settings...")
+        try:
+            mgrattribute_root = f"{manager_root}/Attributes"
+            mgrattribute_detail = session.get(mgrattribute_root)
+            mgrattribute_attributes = list(mgrattribute_detail["Attributes"].keys())
+            for setting, value in cspec_node["bmc"].get("manager_settings", {}).items():
+                if setting not in mgrattribute_attributes:
+                    continue
+                payload = {"Attributes": {setting: value}}
+                session.patch(mgrattribute_root, payload)
+        except Exception as e:
+            notifications.send_webhook(config, "failure", f"Cluster {cspec_cluster}: Failed to set BMC settings for host {cspec_fqdn} at {bmc_host}. Check pvcbootstrapd logs and reset this host's BMC to retry.")
+            logger.error(f"Cluster {cspec_cluster}: Failed to set BMC settings for host {cspec_fqdn} at {bmc_host}: {e}")
+            logger.error("Aborting Redfish configuration; reset BMC to retry.")
+            del session
+            return
 
     # Set boot override to Pxe for the installer boot
     logger.info("Setting temporary PXE boot...")

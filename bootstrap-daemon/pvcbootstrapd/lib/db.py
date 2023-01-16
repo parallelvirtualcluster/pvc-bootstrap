@@ -67,7 +67,7 @@ def init_database(config):
                            (id INTEGER PRIMARY KEY AUTOINCREMENT,
                             cluster INTEGER NOT NULL,
                             state TEXT NOT NULL,
-                            name TEXT UNIQUE NOT NULL,
+                            name TEXT NOT NULL,
                             nodeid INTEGER NOT NULL,
                             bmc_macaddr TEXT NOT NULL,
                             bmc_ipaddr TEXT NOT NULL,
