@@ -54,7 +54,7 @@ def run_bootstrap(config, cspec, cluster, nodes):
     logger.info("Waiting 60s before starting Ansible bootstrap.")
     sleep(60)
 
-    logger.info("Starting Ansible bootstrap of cluster {cluster.name}")
+    logger.info(f"Starting Ansible bootstrap of cluster {cluster.name}")
     notifications.send_webhook(config, "begin", f"Cluster {cluster.name}: Starting Ansible bootstrap")
 
     # Run the Ansible playbooks
