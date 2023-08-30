@@ -28,7 +28,7 @@ import pvcbootstrapd.lib.notifications as notifications
 
 def build_tftp_repository(config):
     # Generate an installer config
-    build_cmd = [ f"{config['ansible_path']}/pvc-installer/buildpxe.sh", "-o", config['tftp_root_path'], "-u", config['deploy_username'] ]
+    build_cmd = [ f"{config['ansible_path']}/pvc-installer/buildpxe.sh", "-o", config['tftp_root_path'], "-u", config['deploy_username'], "-m", config["repo_mirror"] ]
     print(f"Building TFTP contents via pvc-installer command: {' '.join(build_cmd)}")
     notifications.send_webhook(config, "begin", f"Building TFTP contents via pvc-installer command: {' '.join(build_cmd)}")
     retcode = run(build_cmd)

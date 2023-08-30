@@ -67,7 +67,7 @@ def add_preseed(config, cspec_node, host_macaddr, system_drive_target):
     # We use the dhcp_address here to allow the listen_address to be 0.0.0.0
     rendered = template.render(
         debrelease=cspec_node.get("config", {}).get("release"),
-        debmirror=cspec_node.get("config", {}).get("mirror"),
+        debmirror=config.get("repo_mirror"),
         addpkglist=add_packages,
         filesystem=cspec_node.get("config", {}).get("filesystem"),
         skip_blockcheck=False,

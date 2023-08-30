@@ -21,6 +21,8 @@ pvc:
   tftp:
     root_path: "ROOT_DIRECTORY/tftp"
     host_path: "ROOT_DIRECTORY/tftp/host"
+  repo:
+    mirror: http://BOOTSTRAP_ADDRESS:3142/UPSTREAM_MIRROR
   ansible:
     path: "ROOT_DIRECTORY/repo"
     keyfile: "ROOT_DIRECTORY/id_ed25519"

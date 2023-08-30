@@ -121,6 +121,7 @@ def read_config():
         o_queue = o_base["queue"]
         o_dhcp = o_base["dhcp"]
         o_tftp = o_base["tftp"]
+        o_repo = o_base["repo"]
         o_ansible = o_base["ansible"]
         o_notifications = o_base["notifications"]
     except KeyError as k:
@@ -176,6 +177,15 @@ def read_config():
         except Exception:
             raise MalformedConfigurationError(
                 f"Missing second-level key '{key}' under 'tftp'"
+            )
+
+    # Get the Repo configuration
+    for key in ["mirror"]:
+        try:
+            config[f"repo_{key}"] = o_repo[key]
+        except Exception:
+            raise MalformedConfigurationError(
+                f"Missing second-level key '{key}' under 'repo'"
             )
 
     # Get the Ansible configuration

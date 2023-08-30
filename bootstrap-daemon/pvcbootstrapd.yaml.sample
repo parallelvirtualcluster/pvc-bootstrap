@@ -58,6 +58,12 @@ pvc:
     # Per-host TFTP path (almost always "/host" under "root_path"; must be writable)
     host_path: "/srv/tftp/pvc-installer/host"
 
+  # Debian repository configuration
+  repo:
+    # Mirror path; defaults to using the apt-cacher-ng instance located on the current machine
+    # Replace "10.199.199.254" if you change "dhcp" -> "address" above
+    mirror: http://10.199.199.254:3142/ftp.debian.org/debian
+
   # PVC Ansible repository configuration
   # Note: If "path" does not exist, "remote" will be cloned to it via Git using SSH private key "keyfile".
   # Note: The VCS will be refreshed regularly via the API in response to webhooks.

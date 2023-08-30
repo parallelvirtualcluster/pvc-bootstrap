@@ -95,12 +95,27 @@ if [[ -z ${deploy_username} ]]; then
 fi
 echo
 
+echo "Please enter an upstream Debian mirror (hostname+directory without scheme) to use (e.g. ftp.debian.org/debian):"
+echo -n "[ftp.debian.org/debian] > "
+read upstream_mirror
+if [[ -z ${upstream_mirror} ]]; then
+    upstream_mirror="ftp.debian.org/debian"
+fi
+echo
+
 echo "Proceeding with setup!"
 echo
 
 echo "Installing APT dependencies..."
 sudo apt-get update
-sudo apt-get install --yes vlan iptables dnsmasq redis python3 python3-pip python3-requests sqlite3 celery pxelinux syslinux-common live-build debootstrap uuid-runtime qemu-user-static
+sudo apt-get install --yes vlan iptables dnsmasq redis python3 python3-pip python3-requests sqlite3 celery pxelinux syslinux-common live-build debootstrap uuid-runtime qemu-user-static apt-cacher-ng
+
+echo "Configuring apt-cacher-ng..."
+sudo systemctl enable --now apt-cacher-ng
+if ! grep -q ${upstream_mirror} /etc/apt-cacher-ng/backends_debian; then
+    echo "http://${upstream_mirror}" | sudo tee /etc/apt-cacher-ng/backends_debian &>/dev/null
+    sudo systemctl restart apt-cacher-ng
+fi
 
 echo "Configuring dnsmasq..."
 sudo systemctl disable --now dnsmasq
@@ -131,6 +146,7 @@ sed -i "s|BOOTSTRAP_DHCPSTART|${bootstrap_dhcpstart}|" ${root_directory}/pvcboot
 sed -i "s|BOOTSTRAP_DHCPEND|${bootstrap_dhcpend}|" ${root_directory}/pvcbootstrapd/pvcbootstrapd.yaml
 sed -i "s|GIT_REMOTE|${git_remote}|" ${root_directory}/pvcbootstrapd/pvcbootstrapd.yaml
 sed -i "s|GIT_BRANCH|${git_branch}|" ${root_directory}/pvcbootstrapd/pvcbootstrapd.yaml
+sed -i "s|UPSTREAM_MIRROR|${upstream_mirror}|" ${root_directory}/pvcbootstrapd/pvcbootstrapd.yaml
 
 echo "Creating network configuration for interface ${bootstrap_interface} (is vLAN? ${is_bootstrap_interface_vlan})..."
 if [[ "${is_bootstrap_interface_vlan}" == "yes" ]]; then
