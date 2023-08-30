@@ -21,6 +21,8 @@
 
 import os.path
 import shutil
+from subprocess import run
+from sys import stdout, stderr
 
 import pvcbootstrapd.lib.notifications as notifications
 
@@ -28,9 +30,11 @@ import pvcbootstrapd.lib.notifications as notifications
 def build_tftp_repository(config):
     # Generate an installer config
     build_cmd = f"{config['ansible_path']}/pvc-installer/buildpxe.sh -o {config['tftp_root_path']} -u {config['deploy_username']}"
+    build_cmd = [ f"{config['ansible_path']}/pvc-installer/buildpxe.sh", "-o", config['tftp_root_path'], "-u", config['deploy_username'] ]
     print(f"Building TFTP contents via pvc-installer command: {build_cmd}")
-    notifications.send_webhook(config, "begin", f"Building TFTP contents via pvc-installer command: {build_cmd}")
-    os.system(build_cmd)
+    notifications.send_webhook(config, "begin", f"Building TFTP contents via pvc-installer command: {' '.join(build_cmd)}")
+    retcode = run(build_cmd, stdout=stdout, stderr=stderr)
+    return True if retcode == 0 else False
 
 
 def init_tftp(config):
@@ -46,5 +50,8 @@ def init_tftp(config):
             f"{config['ansible_key_file']}.pub", f"{config['tftp_root_path']}/keys.txt"
         )
 
-        build_tftp_repository(config)
-        notifications.send_webhook(config, "success", "First run: successfully initialized TFTP root and contents")
+        result = build_tftp_repository(config)
+        if result:
+            notifications.send_webhook(config, "success", "First run: successfully initialized TFTP root and contents")
+        else:
+            notifications.send_webhook(config, "failure", "First run: failed initialized TFTP root and contents; check pvcbootstrapd logs")
