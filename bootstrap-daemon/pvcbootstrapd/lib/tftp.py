@@ -22,18 +22,16 @@
 import os.path
 import shutil
 from subprocess import run
-from sys import stdout, stderr
 
 import pvcbootstrapd.lib.notifications as notifications
 
 
 def build_tftp_repository(config):
     # Generate an installer config
-    build_cmd = f"{config['ansible_path']}/pvc-installer/buildpxe.sh -o {config['tftp_root_path']} -u {config['deploy_username']}"
     build_cmd = [ f"{config['ansible_path']}/pvc-installer/buildpxe.sh", "-o", config['tftp_root_path'], "-u", config['deploy_username'] ]
-    print(f"Building TFTP contents via pvc-installer command: {build_cmd}")
+    print(f"Building TFTP contents via pvc-installer command: {' '.join(build_cmd)}")
     notifications.send_webhook(config, "begin", f"Building TFTP contents via pvc-installer command: {' '.join(build_cmd)}")
-    retcode = run(build_cmd, stdout=stdout, stderr=stderr)
+    retcode = run(build_cmd)
     return True if retcode == 0 else False
 
 
@@ -52,6 +50,8 @@ def init_tftp(config):
 
         result = build_tftp_repository(config)
         if result:
+            print("First run: successfully initialized TFTP root and contents")
             notifications.send_webhook(config, "success", "First run: successfully initialized TFTP root and contents")
         else:
+            print("First run: failed initialized TFTP root and contents; see logs above")
             notifications.send_webhook(config, "failure", "First run: failed initialized TFTP root and contents; check pvcbootstrapd logs")
