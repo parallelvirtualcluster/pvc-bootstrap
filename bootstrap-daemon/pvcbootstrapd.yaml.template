@@ -23,6 +23,7 @@ pvc:
     host_path: "ROOT_DIRECTORY/tftp/host"
   repo:
     mirror: http://BOOTSTRAP_ADDRESS:3142/UPSTREAM_MIRROR
+    release: DEBIAN_RELEASE
   ansible:
     path: "ROOT_DIRECTORY/repo"
     keyfile: "ROOT_DIRECTORY/id_ed25519"

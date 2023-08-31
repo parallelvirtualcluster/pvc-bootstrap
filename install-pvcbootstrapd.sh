@@ -103,6 +103,14 @@ if [[ -z ${upstream_mirror} ]]; then
 fi
 echo
 
+echo "Please enter the default Debian release for new clusters (e.g. 'bullseye', 'bookworm'):"
+echo -n "[bookworm] > "
+read debian_release
+if [[ -z ${debian_release} ]]; then
+    debian_release="bookworm"
+fi
+echo
+
 echo "Proceeding with setup!"
 echo
 
@@ -147,6 +155,7 @@ sed -i "s|BOOTSTRAP_DHCPEND|${bootstrap_dhcpend}|" ${root_directory}/pvcbootstra
 sed -i "s|GIT_REMOTE|${git_remote}|" ${root_directory}/pvcbootstrapd/pvcbootstrapd.yaml
 sed -i "s|GIT_BRANCH|${git_branch}|" ${root_directory}/pvcbootstrapd/pvcbootstrapd.yaml
 sed -i "s|UPSTREAM_MIRROR|${upstream_mirror}|" ${root_directory}/pvcbootstrapd/pvcbootstrapd.yaml
+sed -i "s|DEBIAN_RELEASE|${debian_release}|" ${root_directory}/pvcbootstrapd/pvcbootstrapd.yaml
 
 echo "Creating network configuration for interface ${bootstrap_interface} (is vLAN? ${is_bootstrap_interface_vlan})..."
 if [[ "${is_bootstrap_interface_vlan}" == "yes" ]]; then

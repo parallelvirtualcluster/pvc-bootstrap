@@ -180,7 +180,7 @@ def read_config():
             )
 
     # Get the Repo configuration
-    for key in ["mirror"]:
+    for key in ["mirror", "release"]:
         try:
             config[f"repo_{key}"] = o_repo[key]
         except Exception:

@@ -64,6 +64,9 @@ pvc:
     # Replace "10.199.199.254" if you change "dhcp" -> "address" above
     mirror: http://10.199.199.254:3142/ftp.debian.org/debian
 
+    # Default Debian release for new clusters. Must be supported by PVC ("buster", "bullseye", "bookworm").
+    release: bookworm
+
   # PVC Ansible repository configuration
   # Note: If "path" does not exist, "remote" will be cloned to it via Git using SSH private key "keyfile".
   # Note: The VCS will be refreshed regularly via the API in response to webhooks.
