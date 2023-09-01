@@ -715,8 +715,8 @@ def redfish_init(config, cspec, data):
     cspec_hostname = cspec_node["node"]["hostname"]
     cspec_fqdn = cspec_node["node"]["fqdn"]
 
-    logger.info("Waiting 60 seconds for system normalization")
-    sleep(60)
+    logger.info("Waiting 30 seconds for system normalization")
+    sleep(30)
 
     notifications.send_webhook(config, "begin", f"Cluster {cspec_cluster}: Beginning Redfish initialization of host {cspec_fqdn}")
 
