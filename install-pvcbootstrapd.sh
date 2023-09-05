@@ -121,7 +121,7 @@ sudo apt-get install --yes vlan iptables dnsmasq redis python3 python3-pip pytho
 echo "Configuring apt-cacher-ng..."
 sudo systemctl enable --now apt-cacher-ng
 if ! grep -q ${upstream_mirror} /etc/apt-cacher-ng/backends_debian; then
-    echo "http://${upstream_mirror}" | sudo tee /etc/apt-cacher-ng/backends_debian &>/dev/null
+    echo "http://${upstream_mirror}" | sudo tee -a /etc/apt-cacher-ng/backends_debian &>/dev/null
     sudo systemctl restart apt-cacher-ng
 fi
 
