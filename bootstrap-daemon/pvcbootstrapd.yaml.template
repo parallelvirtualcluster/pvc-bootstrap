@@ -26,7 +26,7 @@ pvc:
     release: DEBIAN_RELEASE
   ansible:
     path: "ROOT_DIRECTORY/repo"
-    keyfile: "ROOT_DIRECTORY/id_ed25519"
+    key_file: "ROOT_DIRECTORY/id_ed25519"
     remote: "GIT_REMOTE"
     branch: "GIT_BRANCH"
     clusters_file: "clusters.yml"

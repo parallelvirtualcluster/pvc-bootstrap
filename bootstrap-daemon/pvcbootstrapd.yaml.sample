@@ -68,7 +68,7 @@ pvc:
     release: bookworm
 
   # PVC Ansible repository configuration
-  # Note: If "path" does not exist, "remote" will be cloned to it via Git using SSH private key "keyfile".
+  # Note: If "path" does not exist, "remote" will be cloned to it via Git using SSH private key "key_file".
   # Note: The VCS will be refreshed regularly via the API in response to webhooks.
   ansible:
     # Path to the VCS repository
