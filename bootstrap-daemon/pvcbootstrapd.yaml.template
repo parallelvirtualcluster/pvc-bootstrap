@@ -30,6 +30,7 @@ pvc:
     remote: "GIT_REMOTE"
     branch: "GIT_BRANCH"
     clusters_file: "clusters.yml"
+    lock_file: "/run/pvcbootstrapd.lock"
     cspec_files:
         base: "base.yml"
         pvc: "pvc.yml"
