@@ -70,6 +70,7 @@ def pull_repository(config):
             g.pull(rebase=True, env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
             logger.debug("Performing git submodule update")
             g.submodule("update", "--init", env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
+            g.submodule("update", env=dict(GIT_SSH_COMMAND=git_ssh_cmd))
         except Exception as e:
             logger.warn(e)
             notifications.send_webhook(config, "failure", "Failed to update Git repository")
