@@ -84,13 +84,14 @@ def run_hook_osd(config, targets, args):
         weight = args.get("weight", 1)
         ext_db_flag = args.get("ext_db", False)
         ext_db_ratio = args.get("ext_db_ratio", 0.05)
+        osd_count = args.get("osd_count", 1)
 
         logger.info(f"Creating OSD on node {node_name} device {device} weight {weight}")
 
         # Using a direct command on the target here is somewhat messy, but avoids many
         # complexities of determining a valid API listen address, etc.
         pvc_cmd_string = (
-            f"pvc storage osd add --yes {node_name} {device} --weight {weight}"
+            f"pvc storage osd add --yes {node_name} {device} --weight {weight} --osd-count {osd_count}"
         )
         if ext_db_flag:
             pvc_cmd_string = f"{pvc_cmd_string} --ext-db --ext-db-ratio {ext_db_ratio}"
