@@ -27,12 +27,8 @@ case "$( cat /etc/debian_version )" in
     10.*)
         CELERY_ARGS="worker --app pvcbootstrapd.flaskapi.celery --concurrency 99 --pool gevent --loglevel DEBUG"
     ;;
-    11.*)
-        CELERY_ARGS="--app pvcbootstrapd.flaskapi.celery worker --concurrency 99 --pool gevent --loglevel DEBUG"
-    ;;
     *)
-        echo "Invalid Debian version found!"
-        exit 1
+        CELERY_ARGS="--app pvcbootstrapd.flaskapi.celery worker --concurrency 99 --pool gevent --loglevel DEBUG"
     ;;
 esac
 
