@@ -266,6 +266,8 @@ case ${start_flag} in
     ;;
     *)
         echo
+        sudo ifup ${bootstrap_interface}
+        sudo service apt-cacher-ng restart
         export PVCD_CONFIG_FILE="${root_directory}/pvcbootstrapd/pvcbootstrapd.yaml"
         ${root_directory}/pvcbootstrapd/pvcbootstrapd.py --init-only
     ;;
