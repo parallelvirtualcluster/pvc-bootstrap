@@ -116,7 +116,7 @@ echo
 
 echo "Installing APT dependencies..."
 sudo apt-get update
-sudo apt-get install --yes vlan iptables dnsmasq redis python3 python3-pip python3-requests python3-git python3-ansible-runner sqlite3 celery pxelinux syslinux-common live-build debootstrap uuid-runtime qemu-user-static apt-cacher-ng
+sudo apt-get install --yes vlan iptables dnsmasq redis python3 python3-pip python3-requests python3-git python3-ansible-runner python3-filelock python3-flask python3-paramiko python3-flask-restful sqlite3 celery pxelinux syslinux-common live-build debootstrap uuid-runtime qemu-user-static apt-cacher-ng
 
 echo "Configuring apt-cacher-ng..."
 sudo systemctl enable --now apt-cacher-ng
