@@ -266,7 +266,11 @@ case ${start_flag} in
     ;;
     *)
         echo
-        sudo ifup ${bootstrap_interface}
+        if [[ "${is_bootstrap_interface_vlan}" == "yes" ]]; then
+            sudo ifup vlan${bootstrap_vlan}
+        else
+            sudo ifup ${bootstrap_interface}
+        fi
         sudo service apt-cacher-ng restart
         export PVCD_CONFIG_FILE="${root_directory}/pvcbootstrapd/pvcbootstrapd.yaml"
         ${root_directory}/pvcbootstrapd/pvcbootstrapd.py --init-only
