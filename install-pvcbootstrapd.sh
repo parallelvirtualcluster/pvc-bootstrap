@@ -138,7 +138,7 @@ echo "Installing pvcbootstrapd..."
 cp -a bootstrap-daemon ${root_directory}/pvcbootstrapd
 
 echo "Installing PIP dependencies..."
-sudo pip3 install -r ${root_directory}/pvcbootstrapd/requirements.txt
+sudo pip3 install --break-system-packages -r ${root_directory}/pvcbootstrapd/requirements.txt
 
 echo "Determining IP addresses..."
 bootstrap_address="$( awk -F'.' '{ print $1"."$2"."$3".1" }' <<<"${bootstrap_network}" )"
