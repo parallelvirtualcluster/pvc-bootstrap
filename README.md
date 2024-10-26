@@ -1,18 +1,46 @@
+<p align="center">
+<img alt="Logo banner" src="https://docs.parallelvirtualcluster.org/en/latest/images/pvc_logo_black.png"/>
+<br/><br/>
+<a href="https://www.parallelvirtualcluster.org"><img alt="Website" src="https://img.shields.io/badge/visit-website-blue"/></a>
+<a href="https://github.com/parallelvirtualcluster/pvc"><img alt="License" src="https://img.shields.io/github/license/parallelvirtualcluster/pvc"/></a>
+<a href="https://github.com/psf/black"><img alt="Code style: Black" src="https://img.shields.io/badge/code%20style-black-000000.svg"/></a>
+<a href="https://github.com/parallelvirtualcluster/pvc/releases"><img alt="Latest Release" src="https://img.shields.io/github/release-pre/parallelvirtualcluster/pvc"/></a>
+<a href="https://docs.parallelvirtualcluster.org/en/latest/?badge=latest"><img alt="Documentation Status" src="https://readthedocs.org/projects/parallelvirtualcluster/badge/?version=latest"/></a>
+</p>
+
+## What is PVC?
+
+PVC is a Linux KVM-based hyperconverged infrastructure (HCI) virtualization cluster solution that is fully Free Software, scalable, redundant, self-healing, self-managing, and designed for administrator simplicity. It is an alternative to other HCI solutions such as Ganeti, Harvester, Nutanix, and VMWare, as well as to other common virtualization stacks such as ProxMox and OpenStack.
+
+PVC is a complete HCI solution, built from well-known and well-trusted Free Software tools, to assist an administrator in creating and managing a cluster of servers to run virtual machines, as well as self-managing several important aspects including storage failover, node failure and recovery, virtual machine failure and recovery, and network plumbing. It is designed to act consistently, reliably, and unobtrusively, letting the administrator concentrate on more important things.
+
+PVC is highly scalable. From a minimum (production) node count of 3, up to 12 or more, and supporting many dozens of VMs, PVC scales along with your workload and requirements. Deploy a cluster once and grow it as your needs expand.
+
+As a consequence of its features, PVC makes administrating very high-uptime VMs extremely easy, featuring VM live migration, built-in always-enabled shared storage with transparent multi-node replication, and consistent network plumbing throughout the cluster. Nodes can also be seamlessly removed from or added to service, with zero VM downtime, to facilitate maintenance, upgrades, or other work.
+
+PVC also features an optional, fully customizable VM provisioning framework, designed to automate and simplify VM deployments using custom provisioning profiles, scripts, and CloudInit userdata API support.
+
+Installation of PVC is accomplished by two main components: a [Node installer ISO](https://github.com/parallelvirtualcluster/pvc-installer) which creates on-demand installer ISOs, and an [Ansible role framework](https://github.com/parallelvirtualcluster/pvc-ansible) to configure, bootstrap, and administrate the nodes. Installation can also be fully automated with a companion [cluster bootstrapping system](https://github.com/parallelvirtualcluster/pvc-bootstrap). Once up, the cluster is managed via an HTTP REST API, accessible via a Python Click CLI client ~~or WebUI~~ (eventually).
+
+Just give it physical servers, and it will run your VMs without you having to think about it, all in just an hour or two of setup time.
+
+More information about PVC, its motivations, the hardware requirements, and setting up and managing a cluster [can be found over at our docs page](https://docs.parallelvirtualcluster.org).
+
 # PVC Bootstrap System
 
 The PVC bootstrap system provides a convenient way to deploy PVC clusters. Rather than manual node installation, this system provides a fully-automated deployment from node powering to cluster readiness, based on pre-configured values. It is useful if an administrator will deploy several PVC clusters or for repeated re-deployment for testing purposes.
 
-## Setup
+# Setup
 
 Setting up the PVC bootstrap system manually is very complicated, and has thus been automated with an installer script instead of providing a Debian or PIP package.
 
-### Preparing to use the PVC Bootstrap system
+## Preparing to use the PVC Bootstrap system
 
 1. Prepare a Git repository to store cluster configurations. This can be done automatically with the `create-local-repo.sh` script in the [PVC Ansible](https://github.com/parallelvirtualcluster/pvc-ansible) repository.
 
 1. Create `group_vars` for each cluster you plan to bootstrap. Additionally, ensure you configure the `bootstrap.yml` file for each cluster with the relevant details of the hardware you will be using. This step can be repeated for each cluster in the future as new clusters are required, and the system will automatically pull changes to the local PVC repository once configured.
 
-### Preparing a PVC Bootstrap host
+## Preparing a PVC Bootstrap host
 
 1. The recommended OS for a PVC Bootstrap host is Debian GNU/Linux 10+. In terms of hardware, there are several supported options:
 
@@ -28,7 +56,7 @@ Setting up the PVC bootstrap system manually is very complicated, and has thus b
 
 1. Run the `./install-pvcbootstrapd.sh` script from the root of the repository to install the PVC Bootstrap system on the host. It will prompt for several configuration parameters. The final steps will take some time (up to 2 hours on a Raspberry Pi 4B) so be patient.
 
-### Networking for Bootstrap
+## Networking for Bootstrap
 
 When using the pvcbootstrapd system, a dedicated network is required to provide bootstrap DHCP and TFTP to the cluster. This network can either have a dedicated, upstream router that does not provide DHCP, or the network can be routed with network address translation (NAT) through the bootstrap host. By default, the installer will configure the latter automatically using a second NIC separate from the upstream NIC of the bootstrap host, or via a vLAN on top of the single NIC.
 
@@ -48,7 +76,7 @@ Consider the following diagram for reference:
 
 ![Overall Network Topology](/docs/images/pvcbootstrapd-net.png)
 
-### Deploying a Cluster with PVC Bootstrap - Redfish
+## Deploying a Cluster with PVC Bootstrap - Redfish
 
 Redfish is an industry-standard RESTful API for interfacing with the BMC (baseband management controller, or out-of-band network management system) on modern (post ~2015) servers from most vendors, including Dell iDRAC, HP iLO, Cisco CIMC, Lenovo XCC, and Supermicro X10 and newer BMCs. Redfish allows remote management, data collection, and configuration from the BMC in a standardized way across server vendors.
 
@@ -64,7 +92,7 @@ The PVC Bootstrap system is designed to heavily leverage Redfish in its automati
 
 1. Verify and power off the servers and put them into production; you may need to complete several post-install tasks (for instance setting the production BMC networking via `sudo ifup ipmi` on each node) before the cluster is completely finished.
 
-### Deploying a Cluster with PVC Bootstrap - Non-Redfish
+## Deploying a Cluster with PVC Bootstrap - Non-Redfish
 
 The PVC Bootstrap system can still handle nodes without Redfish support, for instance older servers or those from non-compliant vendors. There is however more manual setup in the process. The steps are thus:
 
@@ -88,7 +116,7 @@ The PVC Bootstrap system can still handle nodes without Redfish support, for ins
 
 1. Verify and power off the servers and put them into production; you may need to complete several post-install tasks (for instance setting the production BMC networking via `sudo ifup ipmi` on each node) before the cluster is completely finished.
 
-#### `host-MAC.ipxe`
+### `host-MAC.ipxe`
 
 ```
 #1ipxe
@@ -106,7 +134,7 @@ The PVC Bootstrap system can still handle nodes without Redfish support, for ins
 set imgargs-host ARGUMENTS
 ```
 
-#### `host-MAC.preseed`
+### `host-MAC.preseed`
 
 ```
 # The name of this file is "host-123456abcdef.preseed", where "123456abcdef" is the MAC address of the
@@ -127,9 +155,9 @@ set imgargs-host ARGUMENTS
 # This file is thus not designed to be used by humans, and its values are seeded via options in
 # the cluster-local Ansible group_vars, though it can be used as a manual template if required.
 
-###
-### General definitions/overrides
-###
+##
+## General definitions/overrides
+##
 # The Debian release to use (overrides the default)
 debrelease="bullseye"
 
@@ -143,9 +171,9 @@ addpkglist="ca-certificates"
 filesystem="ext4"
 
 
-###
-### Per-host definitions (required)
-###
+##
+## Per-host definitions (required)
+##
 
 # The hostname of the system (set per-run)
 target_hostname="hv1.example.tld"
@@ -188,7 +216,7 @@ target_deploy_user="deploy"
 pvcbootstrapd_checkin_uri="http://10.255.255.1:9999/checkin/host"
 ```
 
-## Bootstrap Process
+# Bootstrap Process
 
 This diagram outlines the various states the nodes and clusters will be in throughout the setup process along with the individual steps for reference. Which node starts characterizing first can be random, but is shown as `node1` for clarity. For non-Redflish installs, the first several steps must be completed manually as referenced above.
 
