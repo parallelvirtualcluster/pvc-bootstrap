@@ -196,16 +196,17 @@ class RedfishSession:
         logger.debug(f"POST payload: {payload}")
 
         response = requests.post(url, data=payload, headers=self.headers, verify=False)
+        logger.debug(f"Response: {response.status_code}")
 
         if response.status_code in [200, 201, 204]:
             try:
                 return response.json()
-            except json.decoder.JSONDecodeError as e:
+            except Exception:
                 return {"json_err": e}
         else:
             try:
                 rinfo = response.json()["error"]["@Message.ExtendedInfo"][0]
-            except json.decoder.JSONDecodeError:
+            except Exception:
                 logger.debug(response)
                 raise
 
@@ -576,6 +577,7 @@ def set_power_state(session, system_root, redfish_vendor, state):
     """
     Set the system power state to the desired state
     """
+    logger.debug(f"Calling set_power_state with {session}, {system_root}, {redfish_vendor}, {state}")
     state_values = {
         "default": {
             "on": "On",
