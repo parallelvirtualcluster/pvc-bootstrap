@@ -198,7 +198,9 @@ class RedfishSession:
         response = requests.post(url, data=payload, headers=self.headers, verify=False)
         logger.debug(f"Response: {response.status_code}")
 
-        if response.status_code in [200, 201, 204]:
+        if response.status_code in [201, 204]:
+            return {"response": "ok"}
+        elif response.status_code in [200]:
             try:
                 return response.json()
             except Exception:
